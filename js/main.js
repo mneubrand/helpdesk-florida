@@ -3,6 +3,7 @@ var PHYSICS_DEBUG = false;
 var BOUNDS_INSET = 15;
 var MOVE_SPEED = 20;
 var WALK_ANIMATION_SPEED = 400;
+var DOOR_WIDTH = 8;
 
 // Globals
 var game = new Phaser.Game(64, 64, Phaser.CANVAS, 'phaser', {
@@ -26,6 +27,7 @@ var cursors;
 function preload() {
     game.load.spritesheet('player', 'assets/sprites/player.png', 4, 4);
     game.load.image('cursor', 'assets/sprites/cursor.png');
+    game.load.image('door', 'assets/sprites/door.png');
     game.load.image('wall_h', 'assets/sprites/wall_h.png');
     game.load.image('wall_v', 'assets/sprites/wall_v.png');
 }
@@ -37,8 +39,9 @@ function create() {
     pixelheight = pixelCanvas.height;
     scale = pixelwidth / 64;
 
-    game.renderer.renderSession.roundPixels = true
     Phaser.Canvas.setSmoothingEnabled(pixelcontext, false);
+    Phaser.Canvas.setSmoothingEnabled(game.context, false);
+    game.renderer.renderSession.roundPixels = true;
 
     // Background color
     game.stage.backgroundColor = bgColors[bgIndex];
@@ -63,34 +66,13 @@ function create() {
     // Bounds
     setWorldBounds(200, 200);
 
-    createRoom(50, 50, 100, 100);
+    createRoom(50, 50, 100, 100, [{offset: 10}, null, null, {offset: 5}]);
+    //createRoom(50, 50, 100, 100, [{offset: 10}]);
 
     // Input
     pixelCanvas.addEventListener('mousedown', requestLock);
     document.addEventListener('mousemove', move, false);
     cursors = game.input.keyboard.createCursorKeys();
-}
-
-function setWorldBounds(w, h) {
-    game.world.setBounds(0, 0, 200, 200);
-    var sim = game.physics.p2;
-
-    var left = new p2.Body({mass: 0, position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)], angle: 1.5707963267948966});
-    left.addShape(new p2.Plane());
-
-    var right = new p2.Body({mass: 0, position: [sim.pxmi(w - BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)], angle: -1.5707963267948966});
-    right.addShape(new p2.Plane());
-
-    var top = new p2.Body({mass: 0, position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)], angle: -3.141592653589793});
-    top.addShape(new p2.Plane());
-
-    var bottom = new p2.Body({mass: 0, position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(h - BOUNDS_INSET)]});
-    bottom.addShape(new p2.Plane());
-
-    sim.world.addBody(left);
-    sim.world.addBody(right);
-    sim.world.addBody(top);
-    sim.world.addBody(bottom);
 }
 
 function requestLock() {
@@ -133,11 +115,7 @@ function update() {
 }
 
 function render() {
-    /*player.x = Math.floor(player.x);
-    player.y = Math.floor(player.y);
-    var camera = game.camera;
-    camera.x = Math.floor(camera.x);
-    camera.y = Math.floor(camera.y);*/
+//    player.x = Math.round(player.x); player.y = Math.round(player.y);
 }
 
 function updatePlayerPhysics() {
@@ -159,23 +137,109 @@ function updatePlayerPhysics() {
 
 }
 
-function createRoom(x, y, w, h) {
-    createWall(x, y, w - 3, 3, 'h'); // north
-    createWall(x + w - 3, y, 3, h - 3, 'v'); // east
-    createWall(x, y + h - 3, w - 3, 3, 'h'); // south
-    createWall(x, y, 3, h - 3, 'v'); // west
+function setWorldBounds(w, h) {
+    game.world.setBounds(0, 0, 200, 200);
+    var sim = game.physics.p2;
+
+    var left = new p2.Body({
+        mass: 0,
+        position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)],
+        angle: Math.PI / 2
+    });
+    left.addShape(new p2.Plane());
+
+    var right = new p2.Body({
+        mass: 0,
+        position: [sim.pxmi(w - BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)],
+        angle: -Math.PI / 2
+    });
+    right.addShape(new p2.Plane());
+
+    var top = new p2.Body({
+        mass: 0,
+        position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)],
+        angle: -Math.PI
+    });
+    top.addShape(new p2.Plane());
+
+    var bottom = new p2.Body({mass: 0, position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(h - BOUNDS_INSET)]});
+    bottom.addShape(new p2.Plane());
+
+    sim.world.addBody(left);
+    sim.world.addBody(right);
+    sim.world.addBody(top);
+    sim.world.addBody(bottom);
 }
 
-function createWall(x, y, w, h, direction) {
-    var wall = game.add.sprite(x, y, 'wall_' + direction);
-    wall.width = w;
-    wall.height = h;
+function createRoom(x, y, w, h, doors) {
+    createWall(x, y, w - 3, 3, 'h', doors[0]); // north
+    createWall(x + w - 3, y, 3, h, 'v', doors[1]); // east
+    createWall(x, y + h - 3, w - 3, 3, 'h', doors[2]); // south
+    createWall(x, y, 3, h - 3, 'v', doors[3]); // west
+}
 
-    game.physics.p2.enable(wall);
-    wall.anchor.setTo(0, 0);
-    wall.body.setRectangle(w, h, w / 2, h / 2);
-    wall.body.static = true;
-    wall.body.debug = PHYSICS_DEBUG;
+function createWall(x, y, w, h, direction, door) {
+    if (!door) {
+        console.log('adding wall at ' + x + ',' + y + ' with w=' + w + ' h=' + h);
+
+        var wall = game.add.sprite(x, y, 'wall_' + direction);
+        wall.width = w;
+        wall.height = h;
+
+        game.physics.p2.enable(wall);
+        wall.anchor.setTo(0, 0);
+        wall.body.setRectangle(w, h, w / 2, h / 2);
+        wall.body.static = true;
+        wall.body.debug = PHYSICS_DEBUG;
+
+        return wall;
+    } else {
+        var wall = createWall(x, y,
+            direction == 'v' ? w : door.offset, direction == 'v' ? door.offset : h,
+            direction);
+        createWall(direction == 'v' ? x : x + door.offset + DOOR_WIDTH, direction == 'v' ? y + door.offset + DOOR_WIDTH : y,
+            direction == 'v' ? w : w - door.offset - DOOR_WIDTH, direction == 'v' ? h - door.offset - DOOR_WIDTH : h,
+            direction);
+        createDoor(direction == 'v' ? x : x + door.offset, direction == 'v' ? y + door.offset : y, direction, wall);
+    }
+}
+
+function createDoor(x, y, direction, wall) {
+    var sim = game.physics.p2;
+    if(direction == 'v') {
+        x+= 2;
+    } else {
+        y++;
+    }
+
+    console.log('creating door at ' + x + ',' + y);
+
+    var point = new p2.Body();
+    sim.world.addBody(point);
+
+    var door;
+    if(direction == 'v') {
+        door = game.add.sprite(x + 0.5 , y + DOOR_WIDTH / 2, 'door');
+    } else {
+        door = game.add.sprite(x + DOOR_WIDTH / 2 , y + 0.5, 'door');
+    }
+
+    sim.enable(door);
+    door.body.setRectangle(DOOR_WIDTH - 2, 1, 0, 0, 0);
+    door.body.angularDamping = 0.9;
+    door.body.debug = PHYSICS_DEBUG;
+    door.body.angle = direction == 'v' ? 90 : 0;
+
+    var jointX = x + 0.5;
+    var jointY = y + 0.5;
+
+    console.log('door joint at ' + jointX + ',' + jointY);
+    var revolute = new p2.RevoluteConstraint(point, door.body.data, {
+        worldPivot: [ sim.pxmi(jointX), sim.pxmi(jointY) ]
+    });
+    sim.world.addConstraint(revolute);
+
+    debugger;
 }
 
 function updateFrame(sprite, rotation) {
