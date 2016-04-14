@@ -1,12 +1,13 @@
 var mouseX, mouseY, rotation = 0;
 var cursors;
+var waitingForSpace = false;
 
 function requestLock() {
     game.input.mouse.requestPointerLock();
 }
 
 function move(e) {
-    if (game.input.mouse.locked) {
+    if (game.input.mouse.locked && !player.dead) {
         // Limit cursor to just slightly outside playing field
         if (e.x + e.movementX + mouseX >= 0 && e.x + e.movementX + mouseX <= (64 - cursor.width) * scale) {
             mouseX += e.movementX;
@@ -31,6 +32,14 @@ function move(e) {
 }
 
 function updateInput() {
+    if(waitingForSpace) {
+        if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+            waitingForSpace = false;
+            loadLevel(currentLevel);
+        }
+        return;
+    }
+
     player.body.angle = rotation;
     player.body.setZeroVelocity();
 
@@ -47,7 +56,13 @@ function updateInput() {
         player.body.moveRight(MOVE_SPEED);
     }
 
-    if(game.input.activePointer.leftButton.isDown) {
-        player.weapon.fire(player, game.input.activePointer.leftButton.timeDown);
+    if (game.input.activePointer.leftButton.isDown) {
+        var targetX = cursor.cameraOffset.x + game.camera.x;
+        var targetY = cursor.cameraOffset.y + game.camera.y;
+        player.weapon.fire(player, targetX, targetY, game.input.activePointer.leftButton.timeDown);
     }
+}
+
+function waitForSpace() {
+    waitingForSpace = true;
 }

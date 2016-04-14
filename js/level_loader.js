@@ -1,20 +1,40 @@
 var player, cursor;
+var enemies;
 var layers;
+var stripes;
 var currentLevel = 0;
 
+var staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup;
+
 function loadLevel(index) {
-    game.world.removeAll();
+    if(game.physics.p2) {
+        game.physics.p2.clear()
+    }
+    game.world.removeAll(true);
+
     var level = LEVELS[index];
+
+    // Physics
+    game.physics.startSystem(Phaser.Physics.P2JS);
+    staticCollisionGroup = game.physics.p2.createCollisionGroup();
+    bulletCollisionGroup = game.physics.p2.createCollisionGroup();
+    dynamicCollisionGroup = game.physics.p2.createCollisionGroup();
+    game.physics.p2.updateBoundsCollisionGroup();
+
+    // Stripes
+    stripes = game.add.tileSprite(0, 0, 64, 64, 'stripes');
+    stripes.lastFrameUpdate = 0;
+    stripes.fixedToCamera = true;
 
     // Bounds
     setWorldBounds(level.w, level.h);
     layers = [];
-    for(var i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {
         layers.push(game.add.group());
     }
 
     // Rooms
-    for(var i = 0; i < level.rooms.length; i++) {
+    for (var i = 0; i < level.rooms.length; i++) {
         createRoom(level.rooms[i]);
     }
 
@@ -22,6 +42,9 @@ function loadLevel(index) {
     player = game.add.sprite(level.playerX, level.playerY, 'player');
     player.lastFrameUpdate = 0;
     game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON);
+
+    // TODO
+    changeWeapon('shotgun', 100);
 
     cursor = game.add.sprite(0, 0, 'cursor');
     cursor.visible = false;
@@ -33,6 +56,21 @@ function loadLevel(index) {
     player.body.collideWorldBounds = true;
     setDynamicCollisionGroup(player.body);
     player.body.debug = PHYSICS_DEBUG;
+
+    enemies = [];
+    for (var i = 0; i < level.enemies.length; i++) {
+        // Player + cursor
+        var enemy = game.add.sprite(level.enemies[i].x, level.enemies[i].x, 'enemy');
+        enemy.lastFrameUpdate = 0;
+        game.physics.p2.enable(enemy);
+        enemy.body.fixedRotation = true;
+        enemy.body.collideWorldBounds = true;
+        setDynamicCollisionGroup(enemy.body);
+        enemy.body.debug = PHYSICS_DEBUG;
+        enemies.push(enemy);
+    }
+
+    game.paused = false;
 }
 
 function createRoom(room) {
@@ -69,7 +107,7 @@ function createWall(x, y, w, h, direction, door) {
         createWall(direction == 'v' ? x : x + door.offset + DOOR_WIDTH, direction == 'v' ? y + door.offset + DOOR_WIDTH : y,
             direction == 'v' ? w : w - door.offset - DOOR_WIDTH, direction == 'v' ? h - door.offset - DOOR_WIDTH : h,
             direction);
-        if(door.door) {
+        if (door.door) {
             createDoor(direction == 'v' ? x : x + door.offset, direction == 'v' ? y + door.offset : y, direction);
         }
     }
@@ -79,8 +117,8 @@ function createDoor(x, y, direction) {
     // Some shady math with the offsets in here.
     // P2 can't seem to do pixel perfect physics at this resolutions
     var sim = game.physics.p2;
-    if(direction == 'v') {
-        x+= 2;
+    if (direction == 'v') {
+        x += 2;
     } else {
         y++;
     }
@@ -91,10 +129,10 @@ function createDoor(x, y, direction) {
     sim.world.addBody(point);
 
     var door;
-    if(direction == 'v') {
-        door = game.add.sprite(x + 0.5 , y + DOOR_WIDTH / 2, 'door');
+    if (direction == 'v') {
+        door = game.add.sprite(x + 0.5, y + DOOR_WIDTH / 2, 'door');
     } else {
-        door = game.add.sprite(x + DOOR_WIDTH / 2 , y + 0.5, 'door');
+        door = game.add.sprite(x + DOOR_WIDTH / 2, y + 0.5, 'door');
     }
     layers[1].add(door);
 
@@ -110,7 +148,7 @@ function createDoor(x, y, direction) {
 
     console.log('door joint at ' + jointX + ',' + jointY);
     var revolute = new p2.RevoluteConstraint(point, door.body.data, {
-        worldPivot: [ sim.pxmi(jointX), sim.pxmi(jointY) ]
+        worldPivot: [sim.pxmi(jointX), sim.pxmi(jointY)]
     });
     sim.world.addConstraint(revolute);
 }
@@ -118,11 +156,11 @@ function createDoor(x, y, direction) {
 function setStaticCollisionGroup(body) {
     body.setCollisionGroup(staticCollisionGroup);
     body._collisionGroup = 'static';
-    body.collides([ staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup ]);
+    body.collides([staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup]);
 }
 
 function setDynamicCollisionGroup(body) {
     body.setCollisionGroup(dynamicCollisionGroup);
     body._collisionGroup = 'dynamic';
-    body.collides([ staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup ]);
+    body.collides([staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup]);
 }
