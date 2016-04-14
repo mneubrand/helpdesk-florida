@@ -43,9 +43,6 @@ function loadLevel(index) {
     player.lastFrameUpdate = 0;
     game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON);
 
-    // TODO
-    changeWeapon('shotgun', 100);
-
     cursor = game.add.sprite(0, 0, 'cursor');
     cursor.visible = false;
     cursor.fixedToCamera = true;
@@ -56,6 +53,9 @@ function loadLevel(index) {
     player.body.collideWorldBounds = true;
     setDynamicCollisionGroup(player.body);
     player.body.debug = PHYSICS_DEBUG;
+
+    // TODO
+    changeWeapon('shotgun', 100);
 
     enemies = [];
     for (var i = 0; i < level.enemies.length; i++) {
