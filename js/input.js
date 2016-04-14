@@ -30,7 +30,7 @@ function move(e) {
     }
 }
 
-function updatePlayerPhysics() {
+function updateInput() {
     player.body.angle = rotation;
     player.body.setZeroVelocity();
 
@@ -45,5 +45,9 @@ function updatePlayerPhysics() {
     }
     if (cursors.right.isDown) {
         player.body.moveRight(MOVE_SPEED);
+    }
+
+    if(game.input.activePointer.leftButton.isDown) {
+        player.weapon.fire(player, game.input.activePointer.leftButton.timeDown);
     }
 }

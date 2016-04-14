@@ -20,9 +20,12 @@ var scale;
 var bgColors = [0x6347AB, 0xC6B4B8, 0x2A6C5E, 0x660852, 0xB3D3E9];
 var bgIndex = 0;
 
+var staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup;
+
 function preload() {
     game.load.spritesheet('player', 'assets/sprites/player.png', 4, 4);
     game.load.image('cursor', 'assets/sprites/cursor.png');
+
     game.load.image('door', 'assets/sprites/door.png');
     game.load.image('wall_h', 'assets/sprites/wall_h.png');
     game.load.image('wall_v', 'assets/sprites/wall_v.png');
@@ -31,6 +34,10 @@ function preload() {
     game.load.image('floor_c', 'assets/sprites/floor_c.png');
     game.load.image('floor_d', 'assets/sprites/floor_d.png');
     game.load.image('floor_e', 'assets/sprites/floor_e.png');
+
+    game.load.image('bullet', 'assets/sprites/bullet.png');
+    game.load.image('debris', 'assets/sprites/debris.png');
+    game.load.spritesheet('shotgun', 'assets/sprites/shotgun.png', 8, 8);
 }
 
 function create() {
@@ -50,26 +57,33 @@ function create() {
 
     // Physics
     game.physics.startSystem(Phaser.Physics.P2JS);
+    staticCollisionGroup = game.physics.p2.createCollisionGroup();
+    bulletCollisionGroup = game.physics.p2.createCollisionGroup();
+    dynamicCollisionGroup = game.physics.p2.createCollisionGroup();
+    game.physics.p2.updateBoundsCollisionGroup();
 
     loadLevel(currentLevel);
+    changeWeapon('shotgun', 100);
 
     // Input
     pixelCanvas.addEventListener('mousedown', requestLock);
     document.addEventListener('mousemove', move, false);
+
     cursors = game.input.keyboard.createCursorKeys();
+    game.input.mouse.capture = true;
 }
 
 function update() {
     // Player
-    updatePlayerPhysics();
-    updateFrame(player, rotation);
+    updateInput();
+    updateCharacterFrame(player, rotation);
 
     // render game canvas to big canvas
     pixelcontext.drawImage(game.canvas, 0, 0, 64, 64, 0, 0, pixelwidth, pixelheight);
 }
 
 function render() {
-//    player.x = Math.round(player.x); player.y = Math.round(player.y);
+
 }
 
 function setWorldBounds(w, h) {
@@ -121,4 +135,37 @@ function tweenBg() {
     });
 
     colorTween.start();
+}
+
+
+function updateCharacterFrame(sprite, rotation) {
+    sprite.frame = Math.round((rotation / 45)) % 8;
+
+    if (sprite.body.velocity.x !== 0 || sprite.body.velocity.y !== 0) {
+        var diff = game.time.now - sprite.lastFrameUpdate;
+        if (diff > WALK_ANIMATION_SPEED) {
+            sprite.lastFrameUpdate = game.time.now;
+        } else if (diff > WALK_ANIMATION_SPEED / 2) {
+            sprite.frame += 16;
+        } else {
+            sprite.frame += 8;
+        }
+    }
+
+    if(sprite.weaponSprite) {
+        sprite.weaponSprite.frame = sprite.frame % 8;
+    }
+}
+
+function changeWeapon(name, ammo) {
+    console.log('changing weapon to ' + name);
+    player.weapon = WEAPONS[name];
+    player.ammo = ammo;
+    if(player.weaponSprite) {
+        player.weaponSprite.destroy();
+        delete player.weaponSprite;
+    }
+
+    player.weaponSprite = game.make.sprite(-4, -4, 'shotgun');
+    player.addChild(player.weaponSprite);
 }

@@ -31,6 +31,7 @@ function loadLevel(index) {
     game.physics.p2.enable(player);
     player.body.fixedRotation = true;
     player.body.collideWorldBounds = true;
+    setDynamicCollisionGroup(player.body);
     player.body.debug = PHYSICS_DEBUG;
 }
 
@@ -60,6 +61,7 @@ function createWall(x, y, w, h, direction, door) {
         wall.body.setRectangle(w, h, w / 2, h / 2);
         wall.body.static = true;
         wall.body.debug = PHYSICS_DEBUG;
+        setStaticCollisionGroup(wall.body);
     } else {
         createWall(x, y,
             direction == 'v' ? w : door.offset, direction == 'v' ? door.offset : h,
@@ -101,6 +103,7 @@ function createDoor(x, y, direction) {
     door.body.angularDamping = 0.9;
     door.body.debug = PHYSICS_DEBUG;
     door.body.angle = direction == 'v' ? 90 : 0;
+    setDynamicCollisionGroup(door.body);
 
     var jointX = x + 0.5;
     var jointY = y + 0.5;
@@ -112,17 +115,14 @@ function createDoor(x, y, direction) {
     sim.world.addConstraint(revolute);
 }
 
-function updateFrame(sprite, rotation) {
-    sprite.frame = Math.round((rotation / 45)) % 8;
+function setStaticCollisionGroup(body) {
+    body.setCollisionGroup(staticCollisionGroup);
+    body._collisionGroup = 'static';
+    body.collides([ staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup ]);
+}
 
-    if (sprite.body.velocity.x !== 0 || sprite.body.velocity.y !== 0) {
-        var diff = game.time.now - sprite.lastFrameUpdate;
-        if (diff > WALK_ANIMATION_SPEED) {
-            sprite.lastFrameUpdate = game.time.now;
-        } else if (diff > WALK_ANIMATION_SPEED / 2) {
-            sprite.frame += 16;
-        } else {
-            sprite.frame += 8;
-        }
-    }
+function setDynamicCollisionGroup(body) {
+    body.setCollisionGroup(dynamicCollisionGroup);
+    body._collisionGroup = 'dynamic';
+    body.collides([ staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup ]);
 }

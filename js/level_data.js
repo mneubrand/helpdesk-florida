@@ -26,7 +26,7 @@ var LEVELS = [
                 y: 20,
                 w: 40,
                 h: 35,
-                doors: [null, {offset: 10}, {offset: 7}, {offset: 10}],
+                doors: [null, {offset: 7}, {offset: 7}, {offset: 10}],
                 floor: 'floor_d'
             },
             {
