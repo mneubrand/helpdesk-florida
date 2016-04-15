@@ -3,13 +3,13 @@ var PHYSICS_DEBUG = false;
 var SIGHT_DEBUG = false;
 
 var BOUNDS_INSET = 14;
-var MOVE_SPEED = 25;
+var MOVE_SPEED = 28;
 var WALK_ANIMATION_SPEED = 800;
 var DOOR_WIDTH = 8;
 var STRIPE_SPEED = 50;
 
 var ENEMY_REACTION = 330;
-var ENEMY_MOVE_SPEED = 20;
+var ENEMY_MOVE_SPEED = 28;
 var ENEMY_SIGHT_ANGLE = 70;
 
 // Globals
