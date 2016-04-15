@@ -168,8 +168,8 @@ function update() {
                 if (game.math.distance(enemy.targetX, enemy.targetY, enemy.x, enemy.y) > 2) {
                     var angle = Math.atan2(enemy.targetY - enemy.y, enemy.targetX - enemy.x);
                     enemy.body.rotation = angle + game.math.degToRad(90);
-                    enemy.body.velocity.x = Math.cos(angle) * ENEMY_WALK_SPEED;
-                    enemy.body.velocity.y = Math.sin(angle) * ENEMY_WALK_SPEED;
+                    enemy.body.velocity.x = Math.cos(angle) * ENEMY_MOVE_SPEED;
+                    enemy.body.velocity.y = Math.sin(angle) * ENEMY_MOVE_SPEED;
                 }
             } else if (enemy.data.waypoints) {
                 var current = enemy.data.waypoints[enemy.currentWaypoint];
@@ -180,8 +180,8 @@ function update() {
 
                 var angle = Math.atan2(current[1] - enemy.y, current[0] - enemy.x);
                 enemy.body.rotation = angle + game.math.degToRad(90);
-                enemy.body.velocity.x = Math.cos(angle) * ENEMY_MOVE_SPEED;
-                enemy.body.velocity.y = Math.sin(angle) * ENEMY_MOVE_SPEED;
+                enemy.body.velocity.x = Math.cos(angle) * ENEMY_WALK_SPEED;
+                enemy.body.velocity.y = Math.sin(angle) * ENEMY_WALK_SPEED;
             }
         }
     }
