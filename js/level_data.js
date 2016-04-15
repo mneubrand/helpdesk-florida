@@ -59,14 +59,15 @@ var LEVELS = [
                 w: 18,
                 h: 78,
                 doors: [null, null, {offset: 4, door: true}, {offset: 7, door: true}],
-                floor: 'floor_b'
+                floor: 'floor_c'
             }
         ],
         enemies: [
             {
                 x: 88,
-                y: 55,
-                angle: 180
+                y: 75,
+                angle: 180,
+                weapon: 'shotgun'
             }
         ]
     }

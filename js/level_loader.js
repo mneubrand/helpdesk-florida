@@ -3,8 +3,10 @@ var enemies;
 var layers;
 var stripes;
 var currentLevel = 0;
+var ammo;
 
 var staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup;
+var sightBlockingBodies;
 
 function loadLevel(index) {
     if(game.physics.p2) {
@@ -34,6 +36,7 @@ function loadLevel(index) {
     }
 
     // Rooms
+    sightBlockingBodies = [];
     for (var i = 0; i < level.rooms.length; i++) {
         createRoom(level.rooms[i]);
     }
@@ -55,12 +58,12 @@ function loadLevel(index) {
     player.body.debug = PHYSICS_DEBUG;
 
     // TODO
-    changeWeapon('shotgun', 100);
+    changeWeapon(player, 'shotgun');
 
     enemies = [];
     for (var i = 0; i < level.enemies.length; i++) {
         var enemyData = level.enemies[i];
-        var enemy = game.add.sprite(enemyData.x, enemyData.x, 'enemy');
+        var enemy = game.add.sprite(enemyData.x, enemyData.y, 'enemy');
         enemy.lastFrameUpdate = 0;
 
         game.physics.p2.enable(enemy);
@@ -70,10 +73,30 @@ function loadLevel(index) {
         enemy.body.debug = PHYSICS_DEBUG;
         enemy.body.angle = enemyData.angle;
 
+        changeWeapon(enemy, 'shotgun');
+
         enemies.push(enemy);
     }
 
     game.paused = false;
+
+    createAmmoDisplay();
+}
+
+function createAmmoDisplay() {
+    var ammo0 = game.add.sprite(0, 0, 'numbers');
+    ammo0.fixedToCamera = true;
+    ammo0.cameraOffset.x = 1;
+    ammo0.cameraOffset.y = 1;
+
+    var ammo1 = game.add.sprite(0, 0, 'numbers');
+    ammo1.fixedToCamera = true;
+    ammo1.cameraOffset.x = 5;
+    ammo1.cameraOffset.y = 1;
+
+    ammo = [
+        ammo0, ammo1
+    ];
 }
 
 function createRoom(room) {
@@ -103,6 +126,8 @@ function createWall(x, y, w, h, direction, door) {
         wall.body.static = true;
         wall.body.debug = PHYSICS_DEBUG;
         setStaticCollisionGroup(wall.body);
+
+        sightBlockingBodies.push(wall.body);
     } else {
         createWall(x, y,
             direction == 'v' ? w : door.offset, direction == 'v' ? door.offset : h,
@@ -146,6 +171,10 @@ function createDoor(x, y, direction) {
     door.body.angle = direction == 'v' ? 90 : 0;
     setDynamicCollisionGroup(door.body);
 
+    // For sight blocking
+    door.body.addRectangle(DOOR_WIDTH + 2, 2, 0, 0, 0);
+    door.body.data.shapes[1].sensor = true;
+
     var jointX = x + 0.5;
     var jointY = y + 0.5;
 
@@ -154,6 +183,22 @@ function createDoor(x, y, direction) {
         worldPivot: [sim.pxmi(jointX), sim.pxmi(jointY)]
     });
     sim.world.addConstraint(revolute);
+
+    sightBlockingBodies.push(door.body);
+}
+
+function changeWeapon(sprite, name, ammo) {
+    console.log('changing weapon to ' + name);
+    sprite.weapon = WEAPONS[name];
+    sprite.ammo = WEAPONS[name].ammo;
+
+    if(sprite.weaponSprite) {
+        sprite.weaponSprite.destroy();
+        delete sprite.weaponSprite;
+    }
+
+    sprite.weaponSprite = game.make.sprite(-4, -4, name);
+    sprite.addChild(sprite.weaponSprite);
 }
 
 function setStaticCollisionGroup(body) {

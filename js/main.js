@@ -1,5 +1,7 @@
 // Constants
 var PHYSICS_DEBUG = false;
+var SIGHT_DEBUG = true;
+
 var BOUNDS_INSET = 15;
 var MOVE_SPEED = 20;
 var WALK_ANIMATION_SPEED = 800;
@@ -44,6 +46,7 @@ function preload() {
     game.load.image('blood', 'assets/sprites/blood.png');
     game.load.spritesheet('shotgun', 'assets/sprites/shotgun.png', 8, 8);
 
+    game.load.spritesheet('numbers', 'assets/sprites/numbers.png', 3, 7);
     game.load.image('text_dead', 'assets/sprites/text_dead.png');
     game.load.image('text_clear', 'assets/sprites/text_clear.png');
     game.load.image('text_over', 'assets/sprites/text_over.png');
@@ -65,6 +68,9 @@ function create() {
     loadSound('hit_wall').volume = 0.5;
     loadSound('gun_click').volume = 0.8;
     loadSound('splat');
+
+    // TODO temp
+    game.sound.mute = true;
 
     var pixelCanvas = document.getElementById('pixel');
     pixelcontext = pixelCanvas.getContext('2d');
@@ -110,8 +116,24 @@ function update() {
     // update spritesheet index based on rotation
     updateCharacterFrame(player, rotation);
     for (var i = 0; i < enemies.length; i++) {
-        updateCharacterFrame(enemies[i], (enemies[i].body.angle + 360) % 360);
+        var enemy = enemies[i];
+        updateCharacterFrame(enemy, (enemy.body.angle + 360) % 360);
+
+        // check line of sight
+        var intersect = getWallIntersection(player, enemy);
+        console.log('wall check');
+        if (!intersect) {
+            if(SIGHT_DEBUG) {
+                game.debug.geom(new Phaser.Line(player.x, player.y, enemy.x, enemy.y), 'rgba(255,0,0,1)');
+            }
+        }
     }
+
+    // update ammo count
+    var ammo0 = Math.floor(player.ammo / 10);
+    var ammo1 = player.ammo % 10;
+    ammo[0].frame = ammo0;
+    ammo[1].frame = ammo1;
 
     // check win and lose condition
     if(player.dead) {
@@ -134,6 +156,32 @@ function update() {
     stripes.bringToTop();
     cursor.bringToTop();
 }
+
+function getWallIntersection(a, b) {
+    var dx = Math.abs(a.x - b.x);
+    var dy = Math.abs(a.y - b.y);
+
+    for(var i = 0; i < (dx > dy ? dx : dy); i++) {
+        var offsetX = dx > dy ? i : dx / dy * i;
+        var offsetY = dx > dy ? dy / dx * i : i;
+
+        var x = a.x + (a.x > b.x ? -offsetX : offsetX);
+        var y = a.y + (a.y > b.y ? -offsetY : offsetY);
+
+        var ret = game.physics.p2.hitTest(new Phaser.Point(x, y), sightBlockingBodies);
+
+        if(SIGHT_DEBUG) {
+            game.debug.geom(new Phaser.Rectangle(x, y, 1, 1), 'rgba(255,255,0,1)');
+        }
+
+        if(ret.length > 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 function render() {
 
@@ -209,20 +257,6 @@ function updateCharacterFrame(sprite, rotation) {
     if(sprite.weaponSprite) {
         sprite.weaponSprite.frame = sprite.frame % 8;
     }
-}
-
-function changeWeapon(name, ammo) {
-    console.log('changing weapon to ' + name);
-    player.weapon = WEAPONS[name];
-    player.ammo = ammo;
-
-    if(player.weaponSprite) {
-        player.weaponSprite.destroy();
-        delete player.weaponSprite;
-    }
-
-    player.weaponSprite = game.make.sprite(-4, -4, 'shotgun');
-    player.addChild(player.weaponSprite);
 }
 
 function loadSound(key) {

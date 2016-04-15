@@ -32,6 +32,8 @@ function move(e) {
 }
 
 function updateInput() {
+    player.body.setZeroVelocity();
+
     if(waitingForSpace) {
         if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
             waitingForSpace = false;
@@ -41,7 +43,6 @@ function updateInput() {
     }
 
     player.body.angle = rotation;
-    player.body.setZeroVelocity();
 
     if (cursors.down.isDown) {
         player.body.moveDown(MOVE_SPEED);
