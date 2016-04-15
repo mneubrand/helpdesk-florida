@@ -225,7 +225,7 @@ function kill(sprite, corpse) {
 
 function spawnPickup(sprite) {
     // Spawn pickup
-    if(sprite.weapon && sprite.weapon !== 'fist') {
+    if(sprite.weapon && sprite.weapon.name !== 'fist') {
         var pickup = game.add.sprite(sprite.x, sprite.y, 'spacer');
         pickup.anchor.set(0.5);
         pickup.width = 5;

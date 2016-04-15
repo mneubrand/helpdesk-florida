@@ -10,6 +10,7 @@ var STRIPE_SPEED = 50;
 
 var ENEMY_REACTION = 330;
 var ENEMY_MOVE_SPEED = 28;
+var ENEMY_WALK_SPEED = 15;
 var ENEMY_SIGHT_ANGLE = 70;
 
 // Globals
@@ -82,6 +83,8 @@ function create() {
     loadSound('assault_rifle');
     loadSound('swing');
 
+    game.sound.mute = true;
+
     var pixelCanvas = document.getElementById('pixel');
     pixelcontext = pixelCanvas.getContext('2d');
     pixelwidth = pixelCanvas.width;
@@ -99,27 +102,13 @@ function create() {
     loadLevel(currentLevel);
 
     // Input
-    pixelCanvas.addEventListener('mousedown', requestLock);
-    document.addEventListener('mousemove', move, false);
+    pixelCanvas.addEventListener('mousedown', requestLock, false);
+    document.addEventListener('mousemove', mouseMove, false);
+    document.addEventListener('mousedown', mouseDown, false);
+    document.addEventListener('mouseup', mouseUp, false);
 
     cursors = game.input.keyboard.createCursorKeys();
     game.input.mouse.capture = true;
-
-    game.input.activePointer.rightButton.onUp.add(function() {
-        for (var i = 0; i < pickups.length; i++) {
-            var boundsA = player.getBounds();
-            var boundsB = pickups[i].getBounds();
-
-            if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
-                spawnPickup(player);
-                debugger;
-                changeWeapon(player, pickups[i].weapon, pickups[i].ammo);
-                pickups.splice(i, 1);
-                pickups[i].destroy();
-                return;
-            }
-        }
-    });
 }
 
 function update() {
@@ -130,7 +119,7 @@ function update() {
     if (diff > STRIPE_SPEED) {
         stripes.cameraOffset.y = stripes.cameraOffset.y == 1 ? 0 : 1;
         stripes.lastFrameUpdate = game.time.now;
-        stripes.alpha = 0.05 + Math.random() * 0.05;
+        stripes.alpha = 0.05;
     }
 
     updateInput();
@@ -179,8 +168,8 @@ function update() {
                 if (game.math.distance(enemy.targetX, enemy.targetY, enemy.x, enemy.y) > 2) {
                     var angle = Math.atan2(enemy.targetY - enemy.y, enemy.targetX - enemy.x);
                     enemy.body.rotation = angle + game.math.degToRad(90);
-                    enemy.body.velocity.x = Math.cos(angle) * ENEMY_MOVE_SPEED;
-                    enemy.body.velocity.y = Math.sin(angle) * ENEMY_MOVE_SPEED;
+                    enemy.body.velocity.x = Math.cos(angle) * ENEMY_WALK_SPEED;
+                    enemy.body.velocity.y = Math.sin(angle) * ENEMY_WALK_SPEED;
                 }
             } else if (enemy.data.waypoints) {
                 var current = enemy.data.waypoints[enemy.currentWaypoint];

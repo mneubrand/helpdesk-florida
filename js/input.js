@@ -2,22 +2,23 @@ var mouseX, mouseY, rotation = 0;
 var cursors;
 var waitingForSpace = false;
 
-function requestLock() {
+function requestLock(e) {
     game.input.mouse.requestPointerLock();
 }
 
-function move(e) {
+function mouseMove(e) {
     if (game.input.mouse.locked && !player.dead) {
-        // Limit cursor to just slightly outside playing field
-        if (e.x + e.movementX + mouseX >= 0 && e.x + e.movementX + mouseX <= (64 - cursor.width) * scale) {
+        // Limit cursor to playing field
+        var halfWidth = 32 * scale;
+        if (halfWidth + e.movementX + mouseX >= 0 && halfWidth + e.movementX + mouseX <= (64 - cursor.width) * scale) {
             mouseX += e.movementX;
         }
-        if (e.y + e.movementY + mouseY >= 0 && e.y + e.movementY + mouseY <= (64 - cursor.width) * scale) {
+        if (halfWidth + e.movementY + mouseY >= 0 && halfWidth + e.movementY + mouseY <= (64 - cursor.width) * scale) {
             mouseY += e.movementY;
         }
 
-        var x = (e.x + mouseX) / scale;
-        var y = (e.y + mouseY) / scale;
+        var x = (halfWidth + mouseX) / scale;
+        var y = (halfWidth + mouseY) / scale;
 
         cursor.visible = true;
         cursor.cameraOffset.x = Math.round(x);
@@ -28,6 +29,32 @@ function move(e) {
         cursor.visible = false;
         mouseX = 0;
         mouseY = 0;
+    }
+}
+
+function mouseDown(e) {
+    if(e.button == 0) {
+        game.input.activePointer.leftButton.timeDown = game.time.time;
+        game.input.activePointer.leftButton.isDown = true;
+    } else if(e.button == 2) {
+        for (var i = 0; i < pickups.length; i++) {
+            var boundsA = player.getBounds();
+            var boundsB = pickups[i].getBounds();
+
+            if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
+                spawnPickup(player);
+                changeWeapon(player, pickups[i].weapon, pickups[i].ammo);
+                pickups.splice(i, 1);
+                pickups[i].destroy();
+                return;
+            }
+        }
+    }
+}
+
+function mouseUp(e) {
+    if(e.button == 0) {
+        game.input.activePointer.leftButton.isDown = false;
     }
 }
 
