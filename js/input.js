@@ -59,7 +59,9 @@ function mouseUp(e) {
 }
 
 function updateInput() {
-    player.body.setZeroVelocity();
+    if(player) {
+        player.body.setZeroVelocity();
+    }
 
     if (waitingForSpace) {
         if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {

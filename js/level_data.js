@@ -1,5 +1,53 @@
 var LEVELS = [
     {
+        w: 110,
+        h: 110,
+        playerX: 32,
+        playerY: 18,
+        rooms: [
+            {
+                x: 25,
+                y: 25,
+                w: 18,
+                h: 55,
+                doors: [{offset: 4, door: true}, {offset: 40, door: true}],
+                floor: 'floor_d'
+            },
+            {
+                x: 40,
+                y: 55,
+                w: 40,
+                h: 25,
+                doors: [{offset: 5, door: true}, null, null, {offset: 10}],
+                floor: 'floor_a'
+            },
+            {
+                x: 40,
+                y: 35,
+                w: 23,
+                h: 23,
+                doors: [null, {offset: 6, door: true}, {offset: 5}],
+                floor: 'floor_b'
+            },
+            {
+                x: 60,
+                y: 35,
+                w: 20,
+                h: 23,
+                doors: [null, null, null, {offset: 6}],
+                floor: 'floor_e'
+            }
+        ],
+        enemies: [
+            {
+                x: 50,
+                y: 60,
+                angle: 0,
+                weapon: 'assault_rifle'
+            }
+        ]
+    },
+    {
         w: 140,
         h: 140,
         playerX: 86,

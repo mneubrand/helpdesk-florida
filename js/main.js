@@ -4,7 +4,7 @@ var SIGHT_DEBUG = false;
 
 var BOUNDS_INSET = 14;
 var MOVE_SPEED = 28;
-var WALK_ANIMATION_SPEED = 800;
+var WALK_ANIMATION_SPEED = 500;
 var DOOR_WIDTH = 8;
 var STRIPE_SPEED = 50;
 
@@ -140,7 +140,7 @@ function update() {
         var sightAngle = (game.math.radToDeg(Math.atan2(player.y - enemy.y, player.x - enemy.x) + game.math.degToRad(90)) + 360) % 360;
         var angleDiff = Math.abs(sightAngle - ((enemy.body.angle + 360) % 360));
 
-        if (!getWallIntersection(enemy, player) && angleDiff < ENEMY_SIGHT_ANGLE) {
+        if (angleDiff < ENEMY_SIGHT_ANGLE && game.math.distance(player.x, player.y, enemy.x, enemy.y) < 60 && !getWallIntersection(enemy, player)) {
             if (SIGHT_DEBUG) {
                 game.debug.geom(new Phaser.Line(player.x, player.y, enemy.x, enemy.y), 'rgba(255,0,0,1)');
             }
