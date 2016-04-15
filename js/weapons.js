@@ -38,6 +38,36 @@ var WEAPONS = {
                 sounds['gun_click'].play();
             }
         }
+    },
+    assault_rifle: {
+        name: 'assault_rifle',
+        ammo: 1000,
+        fire: function (sprite, targetX, targetY, clickTime) {
+            var diff = game.time.now - sprite.lastShot;
+            if (diff < 100) {
+                return;
+            }
+
+            sprite.lastShot = game.time.now;
+
+            if (sprite.ammo > 0) {
+                sprite.ammo--;
+
+                console.log('Shooting assault rifle from ' + sprite.x + ',' + sprite.y + ' to ' + targetX + ',' + targetY);
+
+                console.log(sprite.body.angle);
+                var bulletX = sprite.x + Math.cos(game.math.degToRad((sprite.body.angle + 360) % 360));
+                var bulletY = sprite.y + Math.sin(game.math.degToRad((sprite.body.angle + 360) % 360));
+
+                var angle = Math.atan2(targetY - bulletY, targetX - bulletX) + game.math.degToRad(-1 + Math.random() * 2);
+                spawnBullet(bulletX, bulletY, angle, sprite);
+
+                sounds['assault_rifle'].play();
+
+            } else {
+                sounds['gun_click'].play();
+            }
+        }
     }
 }
 

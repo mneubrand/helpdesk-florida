@@ -48,6 +48,7 @@ function preload() {
     game.load.image('debris', 'assets/sprites/debris.png');
     game.load.image('blood', 'assets/sprites/blood.png');
     game.load.spritesheet('shotgun', 'assets/sprites/shotgun.png', 8, 8);
+    game.load.spritesheet('assault_rifle', 'assets/sprites/assault_rifle.png', 8, 8);
 
     game.load.spritesheet('numbers', 'assets/sprites/numbers.png', 3, 7);
     game.load.image('text_dead', 'assets/sprites/text_dead.png');
@@ -60,6 +61,7 @@ function preload() {
     game.load.audio('hit_wall', 'assets/sounds/hit_wall.wav');
     game.load.audio('gun_click', 'assets/sounds/gun_click.wav');
     game.load.audio('splat', 'assets/sounds/splat.wav');
+    game.load.audio('assault_rifle', 'assets/sounds/assault_rifle.wav');
 }
 
 function create() {
@@ -71,9 +73,7 @@ function create() {
     loadSound('hit_wall').volume = 0.5;
     loadSound('gun_click').volume = 0.8;
     loadSound('splat');
-
-    // TODO temp
-    game.sound.mute = true;
+    loadSound('assault_rifle');
 
     var pixelCanvas = document.getElementById('pixel');
     pixelcontext = pixelCanvas.getContext('2d');

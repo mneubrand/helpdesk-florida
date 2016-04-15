@@ -58,7 +58,7 @@ function loadLevel(index) {
     player.body.debug = PHYSICS_DEBUG;
 
     // TODO
-    changeWeapon(player, 'shotgun');
+    changeWeapon(player, 'assault_rifle');
 
     enemies = [];
     for (var i = 0; i < level.enemies.length; i++) {
