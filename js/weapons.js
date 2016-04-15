@@ -51,7 +51,7 @@ function spawnBullet(x, y, angle, fromSprite) {
     bullet.body.debug = PHYSICS_DEBUG;
     bullet.body.collides([staticCollisionGroup, dynamicCollisionGroup]);
 
-    bullet.body.onBeginContact.add(function blockHit(body, bodyB, shapeA, shapeB, equation) {
+    bullet.body.onBeginContact.add(function (body, bodyB, shapeA, shapeB, equation) {
         if (!body) {
             bullet.destroy();
             return;
@@ -62,39 +62,31 @@ function spawnBullet(x, y, angle, fromSprite) {
             sounds['hit_wall'].play();
         } else if (body._collisionGroup == 'dynamic') {
             var hit = body.sprite;
-            if (fromSprite === player && hit === player) {
+            if (fromSprite === hit) {
                 return;
             }
 
             if (hit === player) {
                 player.dead = true;
-                sounds['splat'].play();
+                player.visible = false;
+                kill(player, 'player_dead');
             } else {
                 var hitEnemy = false;
                 for (var i = 0; i < enemies.length; i++) {
                     var enemy = enemies[i];
-                    if(hit === enemy) {
-                        // Add corpse
-                        var dead = game.add.sprite(enemy.x, enemy.y, 'enemy_dead');
-                        dead.frame = Math.round((enemy.frame % 8) / 2);
-                        dead.anchor.set(0.5);
-
-                        // Splatter blood
-                        spawnParticles(enemy.x, enemy.y, 'blood', 10, angle, 180);
+                    if (hit === enemy) {
+                        kill(enemy, 'enemy_dead');
 
                         // Remove enemy
                         enemies.splice(i, 1);
                         enemy.destroy();
 
-                        hit = true;
                         hitEnemy = true;
                     }
                 }
 
-                if(!hitEnemy) {
+                if (!hitEnemy) {
                     sounds['hit_wall'].play();
-                } else {
-                    sounds['splat'].play();
                 }
             }
         }
@@ -105,8 +97,6 @@ function spawnBullet(x, y, angle, fromSprite) {
     bullet.body.rotation = angle + game.math.degToRad(90);
     bullet.body.velocity.x = Math.cos(angle) * BULLET_SPEED;
     bullet.body.velocity.y = Math.sin(angle) * BULLET_SPEED;
-
-    player.body.setZeroVelocity();
 }
 
 function spawnParticles(x, y, type, num, angle, maxAngle) {
@@ -123,4 +113,16 @@ function spawnParticles(x, y, type, num, angle, maxAngle) {
         debris.body.angularDamping = DEBRIS_DAMPING;
         debris.body.angularVelocity = DEBRIS_SPEED * (-0.5 + Math.random());
     }
+}
+
+function kill(sprite, corpse) {
+    // Add corpse
+    var dead = game.add.sprite(sprite.x, sprite.y, corpse);
+    dead.frame = Math.round((sprite.frame % 8) / 2);
+    dead.anchor.set(0.5);
+
+    // Splatter blood
+    spawnParticles(sprite.x, sprite.y, 'blood', 10, sprite.body.rotation, 180);
+
+    sounds['splat'].play();
 }

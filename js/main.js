@@ -8,12 +8,14 @@ var WALK_ANIMATION_SPEED = 800;
 var DOOR_WIDTH = 8;
 var STRIPE_SPEED = 50;
 
+var ENEMY_REACTION = 300;
+var ENEMY_SIGHT_ANGLE = 70;
+
 // Globals
 var game = new Phaser.Game(64, 64, Phaser.CANVAS, 'phaser', {
     preload: preload,
     create: create,
-    update: update,
-    render: render
+    update: update
 });
 var pixelcontext = null;
 var pixelwidth = 0;
@@ -109,23 +111,35 @@ function update() {
 
     updateInput();
 
-    if(waitingForSpace) {
+    if (waitingForSpace) {
         return;
     }
 
     // update spritesheet index based on rotation
     updateCharacterFrame(player, rotation);
+
     for (var i = 0; i < enemies.length; i++) {
         var enemy = enemies[i];
+        enemy.body.setZeroVelocity();
         updateCharacterFrame(enemy, (enemy.body.angle + 360) % 360);
 
         // check line of sight
-        var intersect = getWallIntersection(player, enemy);
-        console.log('wall check');
-        if (!intersect) {
-            if(SIGHT_DEBUG) {
+        var sightAngle = (game.math.radToDeg(Math.atan2(player.y - enemy.y, player.x - enemy.x) + game.math.degToRad(90)) + 360) % 360;
+        var angleDiff = Math.abs(sightAngle - ((enemy.body.angle + 360) % 360));
+
+        if (!getWallIntersection(enemy, player) && angleDiff < ENEMY_SIGHT_ANGLE) {
+            if (SIGHT_DEBUG) {
                 game.debug.geom(new Phaser.Line(player.x, player.y, enemy.x, enemy.y), 'rgba(255,0,0,1)');
             }
+
+            if (enemy.firstSeen < 0) {
+                enemy.firstSeen = game.time.now;
+            } else if(enemy.firstSeen > 0 && game.time.now - enemy.firstSeen > ENEMY_REACTION) {
+                enemy.body.angle = sightAngle;
+                enemy.weapon.fire(enemy, player.x, player.y);
+            }
+        } else {
+            enemy.firstSeen = -1;
         }
     }
 
@@ -136,17 +150,17 @@ function update() {
     ammo[1].frame = ammo1;
 
     // check win and lose condition
-    if(player.dead) {
-        var text = game.add.sprite(0,0, 'text_dead');
+    if (player.dead) {
+        var text = game.add.sprite(0, 0, 'text_dead');
         text.fixedToCamera = true;
         waitForSpace();
-    } else if(enemies.length == 0) {
-        if(currentLevel == LEVELS.length - 1) {
-            var text = game.add.sprite(0,0, 'text_over');
+    } else if (enemies.length == 0) {
+        if (currentLevel == LEVELS.length - 1) {
+            var text = game.add.sprite(0, 0, 'text_over');
             text.fixedToCamera = true;
             waitForSpace();
         } else {
-            var text = game.add.sprite(0,0, 'text_clear');
+            var text = game.add.sprite(0, 0, 'text_clear');
             text.fixedToCamera = true;
             currentLevel++;
             waitForSpace();
@@ -161,7 +175,7 @@ function getWallIntersection(a, b) {
     var dx = Math.abs(a.x - b.x);
     var dy = Math.abs(a.y - b.y);
 
-    for(var i = 0; i < (dx > dy ? dx : dy); i++) {
+    for (var i = 0; i < (dx > dy ? dx : dy); i++) {
         var offsetX = dx > dy ? i : dx / dy * i;
         var offsetY = dx > dy ? dy / dx * i : i;
 
@@ -170,21 +184,16 @@ function getWallIntersection(a, b) {
 
         var ret = game.physics.p2.hitTest(new Phaser.Point(x, y), sightBlockingBodies);
 
-        if(SIGHT_DEBUG) {
+        if (SIGHT_DEBUG) {
             game.debug.geom(new Phaser.Rectangle(x, y, 1, 1), 'rgba(255,255,0,1)');
         }
 
-        if(ret.length > 0) {
+        if (ret.length > 0) {
             return true;
         }
     }
 
     return false;
-}
-
-
-function render() {
-
 }
 
 function setWorldBounds(w, h) {
@@ -254,7 +263,7 @@ function updateCharacterFrame(sprite, rotation) {
         }
     }
 
-    if(sprite.weaponSprite) {
+    if (sprite.weaponSprite) {
         sprite.weaponSprite.frame = sprite.frame % 8;
     }
 }

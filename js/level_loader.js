@@ -9,7 +9,7 @@ var staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup;
 var sightBlockingBodies;
 
 function loadLevel(index) {
-    if(game.physics.p2) {
+    if (game.physics.p2) {
         game.physics.p2.clear()
     }
     game.world.removeAll(true);
@@ -192,7 +192,7 @@ function changeWeapon(sprite, name, ammo) {
     sprite.weapon = WEAPONS[name];
     sprite.ammo = WEAPONS[name].ammo;
 
-    if(sprite.weaponSprite) {
+    if (sprite.weaponSprite) {
         sprite.weaponSprite.destroy();
         delete sprite.weaponSprite;
     }

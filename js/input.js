@@ -34,8 +34,8 @@ function move(e) {
 function updateInput() {
     player.body.setZeroVelocity();
 
-    if(waitingForSpace) {
-        if(game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
+    if (waitingForSpace) {
+        if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR)) {
             waitingForSpace = false;
             loadLevel(currentLevel);
         }
