@@ -21,7 +21,6 @@ function loadLevel(index) {
     staticCollisionGroup = game.physics.p2.createCollisionGroup();
     bulletCollisionGroup = game.physics.p2.createCollisionGroup();
     dynamicCollisionGroup = game.physics.p2.createCollisionGroup();
-    game.physics.p2.updateBoundsCollisionGroup();
 
     // Stripes
     stripes = game.add.tileSprite(0, 0, 64, 64, 'stripes');
@@ -58,7 +57,7 @@ function loadLevel(index) {
     player.body.debug = PHYSICS_DEBUG;
 
     // TODO
-    changeWeapon(player, 'assault_rifle');
+    changeWeapon(player, 'shotgun');
 
     enemies = [];
     for (var i = 0; i < level.enemies.length; i++) {
@@ -83,6 +82,38 @@ function loadLevel(index) {
     game.paused = false;
 
     createAmmoDisplay();
+
+    game.physics.p2.updateBoundsCollisionGroup();
+}
+
+function setWorldBounds(w, h) {
+    game.world.setBounds(0, 0, w, h);
+
+    var sim = game.physics.p2;
+
+    var top = game.add.tileSprite(w / 2, BOUNDS_INSET / 2, w, BOUNDS_INSET, 'spacer');
+    game.physics.p2.enable(top);
+    top.body.static = true;
+    top.body.debug = PHYSICS_DEBUG;
+    setStaticCollisionGroup(top.body);
+
+    var left = game.add.tileSprite(BOUNDS_INSET / 2, h / 2, BOUNDS_INSET, h, 'spacer');
+    game.physics.p2.enable(left);
+    left.body.static = true;
+    left.body.debug = PHYSICS_DEBUG;
+    setStaticCollisionGroup(left.body);
+
+    var bottom = game.add.tileSprite(w / 2, w - BOUNDS_INSET / 2, w, BOUNDS_INSET, 'spacer');
+    game.physics.p2.enable(bottom);
+    bottom.body.static = true;
+    bottom.body.debug = PHYSICS_DEBUG;
+    setStaticCollisionGroup(bottom.body);
+
+    var right = game.add.tileSprite(h - BOUNDS_INSET / 2, h / 2, BOUNDS_INSET, h, 'spacer');
+    game.physics.p2.enable(right);
+    right.body.static = true;
+    right.body.debug = PHYSICS_DEBUG;
+    setStaticCollisionGroup(right.body);
 }
 
 function createAmmoDisplay() {

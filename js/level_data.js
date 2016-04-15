@@ -1,7 +1,7 @@
 var LEVELS = [
     {
-        w: 200,
-        h: 200,
+        w: 140,
+        h: 140,
         playerX: 86,
         playerY: 105,
         rooms: [

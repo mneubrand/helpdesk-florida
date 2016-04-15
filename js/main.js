@@ -1,8 +1,8 @@
 // Constants
 var PHYSICS_DEBUG = false;
-var SIGHT_DEBUG = true;
+var SIGHT_DEBUG = false;
 
-var BOUNDS_INSET = 15;
+var BOUNDS_INSET = 14;
 var MOVE_SPEED = 20;
 var WALK_ANIMATION_SPEED = 800;
 var DOOR_WIDTH = 8;
@@ -16,7 +16,8 @@ var ENEMY_SIGHT_ANGLE = 70;
 var game = new Phaser.Game(64, 64, Phaser.CANVAS, 'phaser', {
     preload: preload,
     create: create,
-    update: update
+    update: update,
+    render: render
 });
 var pixelcontext = null;
 var pixelwidth = 0;
@@ -35,6 +36,7 @@ function preload() {
     game.load.spritesheet('enemy_dead', 'assets/sprites/enemy_dead.png', 6, 6);
     game.load.image('cursor', 'assets/sprites/cursor.png');
 
+    game.load.image('spacer', 'assets/sprites/spacer.png');
     game.load.image('door', 'assets/sprites/door.png');
     game.load.image('wall_h', 'assets/sprites/wall_h.png');
     game.load.image('wall_v', 'assets/sprites/wall_v.png');
@@ -74,6 +76,8 @@ function create() {
     loadSound('gun_click').volume = 0.8;
     loadSound('splat');
     loadSound('assault_rifle');
+
+    game.sound.mute = true;
 
     var pixelCanvas = document.getElementById('pixel');
     pixelcontext = pixelCanvas.getContext('2d');
@@ -135,16 +139,16 @@ function update() {
 
             if (enemy.firstSeen < 0) {
                 enemy.firstSeen = game.time.now;
-            } else if(enemy.firstSeen > 0 && game.time.now - enemy.firstSeen > ENEMY_REACTION) {
+            } else if (enemy.firstSeen > 0 && game.time.now - enemy.firstSeen > ENEMY_REACTION) {
                 enemy.body.angle = sightAngle;
                 enemy.weapon.fire(enemy, player.x, player.y);
             }
         } else {
             enemy.firstSeen = -1;
 
-            if(enemy.data.waypoints) {
+            if (enemy.data.waypoints) {
                 var current = enemy.data.waypoints[enemy.currentWaypoint];
-                if(game.math.distance(current[0], current[1], enemy.x, enemy.y) < 1) {
+                if (game.math.distance(current[0], current[1], enemy.x, enemy.y) < 1) {
                     enemy.currentWaypoint = (enemy.currentWaypoint + 1) % enemy.data.waypoints.length;
                     current = enemy.data.waypoints[enemy.currentWaypoint];
                 }
@@ -188,6 +192,9 @@ function update() {
     cursor.bringToTop();
 }
 
+function render() {
+}
+
 function getWallIntersection(a, b) {
     var dx = Math.abs(a.x - b.x);
     var dy = Math.abs(a.y - b.y);
@@ -211,40 +218,6 @@ function getWallIntersection(a, b) {
     }
 
     return false;
-}
-
-function setWorldBounds(w, h) {
-    game.world.setBounds(0, 0, 200, 200);
-    var sim = game.physics.p2;
-
-    var left = new p2.Body({
-        mass: 0,
-        position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)],
-        angle: Math.PI / 2
-    });
-    left.addShape(new p2.Plane());
-
-    var right = new p2.Body({
-        mass: 0,
-        position: [sim.pxmi(w - BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)],
-        angle: -Math.PI / 2
-    });
-    right.addShape(new p2.Plane());
-
-    var top = new p2.Body({
-        mass: 0,
-        position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(BOUNDS_INSET)],
-        angle: -Math.PI
-    });
-    top.addShape(new p2.Plane());
-
-    var bottom = new p2.Body({mass: 0, position: [sim.pxmi(BOUNDS_INSET), sim.pxmi(h - BOUNDS_INSET)]});
-    bottom.addShape(new p2.Plane());
-
-    sim.world.addBody(left);
-    sim.world.addBody(right);
-    sim.world.addBody(top);
-    sim.world.addBody(bottom);
 }
 
 function tweenBg() {

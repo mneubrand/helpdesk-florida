@@ -22,10 +22,8 @@ var WEAPONS = {
                 for (var i = 0; i < 5; i++) {
                     console.log('Shooting shotgun from ' + sprite.x + ',' + sprite.y + ' to ' + targetX + ',' + targetY);
 
-                    //var bulletX = sprite.x + Math.cos(game.math.degToRad(sprite.body.angle)) * 2;
-                    //var bulletY = sprite.y + Math.sin(game.math.degToRad(sprite.body.angle)) * 2;
-                    var bulletX = sprite.x;
-                    var bulletY = sprite.y;
+                    var bulletX = sprite.x + this.offsets[sprite.frame % 8][0];
+                    var bulletY = sprite.y + this.offsets[sprite.frame % 8][1];
 
                     var spray = 3;
                     var angle = Math.atan2(targetY - bulletY, targetX - bulletX) + game.math.degToRad(-2 * spray + i * spray);
@@ -37,7 +35,16 @@ var WEAPONS = {
             } else {
                 sounds['gun_click'].play();
             }
-        }
+        }, offsets: [
+            [0, -4],
+            [3, -3],
+            [3, 0],
+            [2, 3],
+            [-1, 3],
+            [-4, 2],
+            [-4, -1],
+            [-3, -4],
+        ]
     },
     assault_rifle: {
         name: 'assault_rifle',
@@ -55,9 +62,8 @@ var WEAPONS = {
 
                 console.log('Shooting assault rifle from ' + sprite.x + ',' + sprite.y + ' to ' + targetX + ',' + targetY);
 
-                console.log(sprite.body.angle);
-                var bulletX = sprite.x + Math.cos(game.math.degToRad((sprite.body.angle + 360) % 360));
-                var bulletY = sprite.y + Math.sin(game.math.degToRad((sprite.body.angle + 360) % 360));
+                var bulletX = sprite.x + this.offsets[sprite.frame % 8][0];
+                var bulletY = sprite.y + this.offsets[sprite.frame % 8][1];
 
                 var angle = Math.atan2(targetY - bulletY, targetX - bulletX) + game.math.degToRad(-1 + Math.random() * 2);
                 spawnBullet(bulletX, bulletY, angle, sprite);
@@ -67,7 +73,16 @@ var WEAPONS = {
             } else {
                 sounds['gun_click'].play();
             }
-        }
+        }, offsets: [
+            [1, -4],
+            [3, -2],
+            [3, 1],
+            [1, 3],
+            [-2, 3],
+            [-4, 1],
+            [-4, -2],
+            [-2, -4],
+        ]
     }
 }
 
