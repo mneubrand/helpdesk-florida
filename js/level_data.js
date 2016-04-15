@@ -68,6 +68,16 @@ var LEVELS = [
                 y: 75,
                 angle: 180,
                 weapon: 'shotgun'
+            },
+            {
+                x: 50,
+                y: 28,
+                angle: 90,
+                weapon: 'shotgun',
+                waypoints: [
+                    [50, 28],
+                    [70, 28]
+                ]
             }
         ]
     }

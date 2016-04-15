@@ -1,4 +1,4 @@
-var BULLET_SPEED = 120;
+var BULLET_SPEED = 150;
 var DEBRIS_SPEED = 60;
 var DEBRIS_DAMPING = 0.99995;
 var ANGULAR_DEBRIS_DAMPING = 0.995;
@@ -9,7 +9,7 @@ var WEAPONS = {
         ammo: 6,
         fire: function (sprite, targetX, targetY, clickTime) {
             var diff = game.time.now - sprite.lastShot;
-            if (diff < 500 || (sprite == player && sprite.lastClick === clickTime)) {
+            if (diff < 250 || (sprite == player && sprite.lastClick === clickTime)) {
                 return;
             }
 
@@ -122,7 +122,7 @@ function kill(sprite, corpse) {
     dead.anchor.set(0.5);
 
     // Splatter blood
-    spawnParticles(sprite.x, sprite.y, 'blood', 10, sprite.body.rotation, 180);
+    spawnParticles(sprite.x, sprite.y, 'blood', 10, sprite.body.rotation , 180);
 
     sounds['splat'].play();
 }

@@ -8,7 +8,8 @@ var WALK_ANIMATION_SPEED = 800;
 var DOOR_WIDTH = 8;
 var STRIPE_SPEED = 50;
 
-var ENEMY_REACTION = 300;
+var ENEMY_REACTION = 330;
+var ENEMY_MOVE_SPEED = 15;
 var ENEMY_SIGHT_ANGLE = 70;
 
 // Globals
@@ -140,6 +141,19 @@ function update() {
             }
         } else {
             enemy.firstSeen = -1;
+
+            if(enemy.data.waypoints) {
+                var current = enemy.data.waypoints[enemy.currentWaypoint];
+                if(game.math.distance(current[0], current[1], enemy.x, enemy.y) < 1) {
+                    enemy.currentWaypoint = (enemy.currentWaypoint + 1) % enemy.data.waypoints.length;
+                    current = enemy.data.waypoints[enemy.currentWaypoint];
+                }
+
+                var angle = Math.atan2(current[1] - enemy.y, current[0] - enemy.x);
+                enemy.body.rotation = angle + game.math.degToRad(90);
+                enemy.body.velocity.x = Math.cos(angle) * ENEMY_MOVE_SPEED;
+                enemy.body.velocity.y = Math.sin(angle) * ENEMY_MOVE_SPEED;
+            }
         }
     }
 
@@ -148,6 +162,9 @@ function update() {
     var ammo1 = player.ammo % 10;
     ammo[0].frame = ammo0;
     ammo[1].frame = ammo1;
+
+    ammo[0].visible = false;
+    ammo[1].visible = false;
 
     // check win and lose condition
     if (player.dead) {

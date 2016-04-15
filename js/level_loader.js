@@ -64,6 +64,8 @@ function loadLevel(index) {
     for (var i = 0; i < level.enemies.length; i++) {
         var enemyData = level.enemies[i];
         var enemy = game.add.sprite(enemyData.x, enemyData.y, 'enemy');
+        enemy.currentWaypoint = 0;
+        enemy.data = enemyData;
         enemy.lastFrameUpdate = 0;
 
         game.physics.p2.enable(enemy);
