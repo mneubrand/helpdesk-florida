@@ -48,10 +48,10 @@ var WEAPONS = {
     },
     assault_rifle: {
         name: 'assault_rifle',
-        ammo: 1000,
+        ammo: 30,
         fire: function (sprite, targetX, targetY, clickTime) {
             var diff = game.time.now - sprite.lastShot;
-            if (diff < 100) {
+            if (diff < 120) {
                 return;
             }
 
@@ -83,6 +83,55 @@ var WEAPONS = {
             [-4, -2],
             [-2, -4],
         ]
+    },
+    fist: {
+        name: 'fist',
+        fire: function (sprite, targetX, targetY, clickTime) {
+            var diff = game.time.now - sprite.lastShot;
+            if (diff < 200 || (sprite == player && sprite.lastClick === clickTime)) {
+                return;
+            }
+
+            if (sprite === player) {
+                for (var i = 0; i < enemies.length; i++) {
+                    var enemy = enemies[0];
+                    var boundsA = player.getBounds().inflate(1, 1);
+                    var boundsB = enemy.getBounds();
+
+                    if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
+                        kill(enemy, 'enemy_dead');
+
+                        // Remove enemy
+                        enemies.splice(i, 1);
+                        enemy.destroy();
+
+                        break;
+                    }
+                }
+            } else {
+                // Don't swing far away
+                if (game.math.distance(sprite.x, sprite.y, player.x, player.y) > 6) {
+                    return;
+                } else {
+                    var boundsA = player.getBounds().inflate(1, 1);
+                    var boundsB = sprite.getBounds();
+
+                    if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
+                        player.dead = true;
+                        player.visible = false;
+                        kill(player, 'player_dead');
+                    }
+                }
+            }
+
+            sprite.lastShot = game.time.now;
+
+            sounds['swing'].play();
+            sprite.weaponSprite.visible = true;
+            window.setTimeout(function () {
+                sprite.weaponSprite.visible = false;
+            }, 100);
+        }
     }
 }
 
@@ -155,7 +204,7 @@ function spawnParticles(x, y, type, num, angle, maxAngle) {
         debris.body.damping = DEBRIS_DAMPING;
         debris.body.velocity.x = Math.cos(debrisAngle) * DEBRIS_SPEED * Math.random();
         debris.body.velocity.y = Math.sin(debrisAngle) * DEBRIS_SPEED * Math.random();
-        debris.body.angularDamping = DEBRIS_DAMPING;
+        debris.body.angularDamping = ANGULAR_DEBRIS_DAMPING;
         debris.body.angularVelocity = DEBRIS_SPEED * (-0.5 + Math.random());
     }
 }
@@ -167,7 +216,24 @@ function kill(sprite, corpse) {
     dead.anchor.set(0.5);
 
     // Splatter blood
-    spawnParticles(sprite.x, sprite.y, 'blood', 10, sprite.body.rotation , 180);
+    spawnParticles(sprite.x, sprite.y, 'blood', 10, sprite.body.rotation, 180);
+
+    spawnPickup(sprite);
 
     sounds['splat'].play();
+}
+
+function spawnPickup(sprite) {
+    // Spawn pickup
+    if(sprite.weapon && sprite.weapon !== 'fist') {
+        var pickup = game.add.sprite(sprite.x, sprite.y, 'spacer');
+        pickup.anchor.set(0.5);
+        pickup.width = 5;
+        pickup.height = 5;
+        pickup.weapon = sprite.weapon.name;
+        pickup.ammo = sprite.ammo;
+        pickup.anchor.set(0.5);
+
+        pickups.push(pickup);
+    }
 }

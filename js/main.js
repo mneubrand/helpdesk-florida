@@ -3,13 +3,13 @@ var PHYSICS_DEBUG = false;
 var SIGHT_DEBUG = false;
 
 var BOUNDS_INSET = 14;
-var MOVE_SPEED = 20;
+var MOVE_SPEED = 25;
 var WALK_ANIMATION_SPEED = 800;
 var DOOR_WIDTH = 8;
 var STRIPE_SPEED = 50;
 
 var ENEMY_REACTION = 330;
-var ENEMY_MOVE_SPEED = 15;
+var ENEMY_MOVE_SPEED = 20;
 var ENEMY_SIGHT_ANGLE = 70;
 
 // Globals
@@ -50,7 +50,10 @@ function preload() {
     game.load.image('debris', 'assets/sprites/debris.png');
     game.load.image('blood', 'assets/sprites/blood.png');
     game.load.spritesheet('shotgun', 'assets/sprites/shotgun.png', 8, 8);
+    game.load.image('shotgun_pickup', 'assets/sprites/shotgun_pickup.png');
     game.load.spritesheet('assault_rifle', 'assets/sprites/assault_rifle.png', 8, 8);
+    game.load.image('assault_rifle_pickup', 'assets/sprites/assault_rifle_pickup.png');
+    game.load.spritesheet('fist', 'assets/sprites/fist.png', 8, 8);
 
     game.load.spritesheet('numbers', 'assets/sprites/numbers.png', 3, 7);
     game.load.image('text_dead', 'assets/sprites/text_dead.png');
@@ -64,6 +67,7 @@ function preload() {
     game.load.audio('gun_click', 'assets/sounds/gun_click.wav');
     game.load.audio('splat', 'assets/sounds/splat.wav');
     game.load.audio('assault_rifle', 'assets/sounds/assault_rifle.wav');
+    game.load.audio('swing', 'assets/sounds/swing.wav');
 }
 
 function create() {
@@ -76,8 +80,7 @@ function create() {
     loadSound('gun_click').volume = 0.8;
     loadSound('splat');
     loadSound('assault_rifle');
-
-    game.sound.mute = true;
+    loadSound('swing');
 
     var pixelCanvas = document.getElementById('pixel');
     pixelcontext = pixelCanvas.getContext('2d');
@@ -101,6 +104,22 @@ function create() {
 
     cursors = game.input.keyboard.createCursorKeys();
     game.input.mouse.capture = true;
+
+    game.input.activePointer.rightButton.onUp.add(function() {
+        for (var i = 0; i < pickups.length; i++) {
+            var boundsA = player.getBounds();
+            var boundsB = pickups[i].getBounds();
+
+            if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
+                spawnPickup(player);
+                debugger;
+                changeWeapon(player, pickups[i].weapon, pickups[i].ammo);
+                pickups.splice(i, 1);
+                pickups[i].destroy();
+                return;
+            }
+        }
+    });
 }
 
 function update() {
@@ -142,11 +161,28 @@ function update() {
             } else if (enemy.firstSeen > 0 && game.time.now - enemy.firstSeen > ENEMY_REACTION) {
                 enemy.body.angle = sightAngle;
                 enemy.weapon.fire(enemy, player.x, player.y);
+
+                if (game.math.distance(enemy.targetX, enemy.targetY, enemy.x, enemy.y) > 2) {
+                    var angle = Math.atan2(enemy.targetY - enemy.y, enemy.targetX - enemy.x);
+                    enemy.body.rotation = angle + game.math.degToRad(90);
+                    enemy.body.velocity.x = Math.cos(angle) * ENEMY_MOVE_SPEED;
+                    enemy.body.velocity.y = Math.sin(angle) * ENEMY_MOVE_SPEED;
+                }
             }
+
+            enemy.targetX = player.x;
+            enemy.targetY = player.y;
         } else {
             enemy.firstSeen = -1;
 
-            if (enemy.data.waypoints) {
+            if (enemy.targetX || enemy.targetY) {
+                if (game.math.distance(enemy.targetX, enemy.targetY, enemy.x, enemy.y) > 2) {
+                    var angle = Math.atan2(enemy.targetY - enemy.y, enemy.targetX - enemy.x);
+                    enemy.body.rotation = angle + game.math.degToRad(90);
+                    enemy.body.velocity.x = Math.cos(angle) * ENEMY_MOVE_SPEED;
+                    enemy.body.velocity.y = Math.sin(angle) * ENEMY_MOVE_SPEED;
+                }
+            } else if (enemy.data.waypoints) {
                 var current = enemy.data.waypoints[enemy.currentWaypoint];
                 if (game.math.distance(current[0], current[1], enemy.x, enemy.y) < 1) {
                     enemy.currentWaypoint = (enemy.currentWaypoint + 1) % enemy.data.waypoints.length;
@@ -161,14 +197,21 @@ function update() {
         }
     }
 
+    var pickupFound = getActivePickup();
+
+
+    if(pickupFound) {
+        pickup.loadTexture(pickupFound.weapon + '_pickup');
+        pickup.visible = true;
+    } else {
+        pickup.visible = false;
+    }
+
     // update ammo count
     var ammo0 = Math.floor(player.ammo / 10);
     var ammo1 = player.ammo % 10;
     ammo[0].frame = ammo0;
     ammo[1].frame = ammo1;
-
-    ammo[0].visible = false;
-    ammo[1].visible = false;
 
     // check win and lose condition
     if (player.dead) {
@@ -190,6 +233,9 @@ function update() {
 
     stripes.bringToTop();
     cursor.bringToTop();
+    pickup.bringToTop();
+    ammo[0].bringToTop();
+    ammo[1].bringToTop();
 }
 
 function render() {
@@ -255,6 +301,21 @@ function updateCharacterFrame(sprite, rotation) {
 
     if (sprite.weaponSprite) {
         sprite.weaponSprite.frame = sprite.frame % 8;
+    }
+}
+
+function getActivePickup() {
+    for (var i = 0; i < pickups.length; i++) {
+        if(!pickups[i].exists) {
+            continue;
+        }
+
+        var boundsA = player.getBounds();
+        var boundsB = pickups[i].getBounds();
+
+        if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
+            return pickups[i];
+        }
     }
 }
 

@@ -3,10 +3,13 @@ var enemies;
 var layers;
 var stripes;
 var currentLevel = 0;
+
 var ammo;
+var pickup;
 
 var staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup;
 var sightBlockingBodies;
+var pickups;
 
 function loadLevel(index) {
     if (game.physics.p2) {
@@ -56,8 +59,25 @@ function loadLevel(index) {
     setDynamicCollisionGroup(player.body);
     player.body.debug = PHYSICS_DEBUG;
 
-    // TODO
-    changeWeapon(player, 'shotgun');
+    player.body.onBeginContact.add(function (body, bodyB, shapeA, shapeB, equation) {
+        if (!body) {
+            return;
+        }
+
+        if (body._collisionGroup == 'dynamic') {
+            var hit = body.sprite;
+            if (hit.key === 'enemy') {
+                window.setTimeout(function () {
+                    if(hit.exists) {
+                        var angle = Math.atan2(player.y - hit.y, player.x - hit.x);
+                        hit.body.rotation = angle + game.math.degToRad(90);
+                    }
+                }, ENEMY_REACTION);
+            }
+        }
+    }, this);
+
+    changeWeapon(player, 'fist');
 
     enemies = [];
     for (var i = 0; i < level.enemies.length; i++) {
@@ -74,7 +94,7 @@ function loadLevel(index) {
         enemy.body.debug = PHYSICS_DEBUG;
         enemy.body.angle = enemyData.angle;
 
-        changeWeapon(enemy, 'shotgun');
+        changeWeapon(enemy, enemyData.weapon);
 
         enemies.push(enemy);
     }
@@ -84,6 +104,13 @@ function loadLevel(index) {
     createAmmoDisplay();
 
     game.physics.p2.updateBoundsCollisionGroup();
+
+    pickups = [];
+    pickup = game.add.sprite(0, 0, 'shotgun_pickup');
+    pickup.visible = false;
+    pickup.fixedToCamera = true;
+    pickup.cameraOffset.x = 64 - 13;
+    pickup.cameraOffset.y = 0;
 }
 
 function setWorldBounds(w, h) {
@@ -222,16 +249,21 @@ function createDoor(x, y, direction) {
 
 function changeWeapon(sprite, name, ammo) {
     console.log('changing weapon to ' + name);
-    sprite.weapon = WEAPONS[name];
-    sprite.ammo = WEAPONS[name].ammo;
 
     if (sprite.weaponSprite) {
         sprite.weaponSprite.destroy();
         delete sprite.weaponSprite;
     }
 
+    sprite.weapon = WEAPONS[name];
+    sprite.ammo = ammo || WEAPONS[name].ammo;
+
     sprite.weaponSprite = game.make.sprite(-4, -4, name);
     sprite.addChild(sprite.weaponSprite);
+
+    if (name == 'fist') {
+        sprite.weaponSprite.visible = false;
+    }
 }
 
 function setStaticCollisionGroup(body) {
