@@ -1,4 +1,4 @@
-var BULLET_SPEED = 100;
+var BULLET_SPEED = 120;
 var DEBRIS_SPEED = 60;
 var DEBRIS_DAMPING = 0.99995;
 var ANGULAR_DEBRIS_DAMPING = 0.995;
@@ -31,8 +31,11 @@ var WEAPONS = {
                     var angle = Math.atan2(targetY - bulletY, targetX - bulletX) + game.math.degToRad(-2 * spray + i * spray);
                     spawnBullet(bulletX, bulletY, angle, sprite);
                 }
+
+                sounds['shotgun'].play();
+
             } else {
-                // TODO play empty gun sound
+                sounds['gun_click'].play();
             }
         }
     }
@@ -56,6 +59,7 @@ function spawnBullet(x, y, angle, fromSprite) {
 
         if (body._collisionGroup == 'static') {
             spawnParticles(bullet.x, bullet.y, 'debris', Math.floor(Math.random() * 2) + 1, angle, 45);
+            sounds['hit_wall'].play();
         } else if (body._collisionGroup == 'dynamic') {
             var hit = body.sprite;
             if (fromSprite === player && hit === player) {
@@ -64,8 +68,9 @@ function spawnBullet(x, y, angle, fromSprite) {
 
             if (hit === player) {
                 player.dead = true;
-                // TODO
+                sounds['splat'].play();
             } else {
+                var hitEnemy = false;
                 for (var i = 0; i < enemies.length; i++) {
                     var enemy = enemies[i];
                     if(hit === enemy) {
@@ -80,10 +85,17 @@ function spawnBullet(x, y, angle, fromSprite) {
                         // Remove enemy
                         enemies.splice(i, 1);
                         enemy.destroy();
+
+                        hit = true;
+                        hitEnemy = true;
                     }
                 }
 
-                // must've hit a door or some other dynamic object. do nothing
+                if(!hitEnemy) {
+                    sounds['hit_wall'].play();
+                } else {
+                    sounds['splat'].play();
+                }
             }
         }
 

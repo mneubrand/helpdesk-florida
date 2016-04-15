@@ -41,7 +41,7 @@ function loadLevel(index) {
     // Player + cursor
     player = game.add.sprite(level.playerX, level.playerY, 'player');
     player.lastFrameUpdate = 0;
-    game.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON);
+    game.camera.follow(player, Phaser.Camera.FOLLOW_TOPDOWN);
 
     cursor = game.add.sprite(0, 0, 'cursor');
     cursor.visible = false;
@@ -59,14 +59,17 @@ function loadLevel(index) {
 
     enemies = [];
     for (var i = 0; i < level.enemies.length; i++) {
-        // Player + cursor
-        var enemy = game.add.sprite(level.enemies[i].x, level.enemies[i].x, 'enemy');
+        var enemyData = level.enemies[i];
+        var enemy = game.add.sprite(enemyData.x, enemyData.x, 'enemy');
         enemy.lastFrameUpdate = 0;
+
         game.physics.p2.enable(enemy);
         enemy.body.fixedRotation = true;
         enemy.body.collideWorldBounds = true;
         setDynamicCollisionGroup(enemy.body);
         enemy.body.debug = PHYSICS_DEBUG;
+        enemy.body.angle = enemyData.angle;
+
         enemies.push(enemy);
     }
 

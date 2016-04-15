@@ -21,6 +21,8 @@ var scale;
 var bgColors = [0x6347AB, 0xC6B4B8, 0x2A6C5E, 0x660852, 0xB3D3E9];
 var bgIndex = 0;
 
+var sounds = {};
+
 function preload() {
     game.load.spritesheet('player', 'assets/sprites/player.png', 4, 4);
     game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 4, 4);
@@ -46,9 +48,24 @@ function preload() {
     game.load.image('text_clear', 'assets/sprites/text_clear.png');
     game.load.image('text_over', 'assets/sprites/text_over.png');
     game.load.image('stripes', 'assets/sprites/stripes.png');
+
+    game.load.audio('bg-loop', 'assets/sounds/bg-loop.wav');
+    game.load.audio('shotgun', 'assets/sounds/shotgun.wav');
+    game.load.audio('hit_wall', 'assets/sounds/hit_wall.wav');
+    game.load.audio('gun_click', 'assets/sounds/gun_click.wav');
+    game.load.audio('splat', 'assets/sounds/splat.wav');
 }
 
 function create() {
+    var loop = loadSound('bg-loop');
+    loop.loop = true;
+    loop.play();
+
+    loadSound('shotgun');
+    loadSound('hit_wall').volume = 0.5;
+    loadSound('gun_click').volume = 0.8;
+    loadSound('splat');
+
     var pixelCanvas = document.getElementById('pixel');
     pixelcontext = pixelCanvas.getContext('2d');
     pixelwidth = pixelCanvas.width;
@@ -93,7 +110,7 @@ function update() {
     // update spritesheet index based on rotation
     updateCharacterFrame(player, rotation);
     for (var i = 0; i < enemies.length; i++) {
-        updateCharacterFrame(enemies[i], 0);
+        updateCharacterFrame(enemies[i], (enemies[i].body.angle + 360) % 360);
     }
 
     // check win and lose condition
@@ -206,4 +223,10 @@ function changeWeapon(name, ammo) {
 
     player.weaponSprite = game.make.sprite(-4, -4, 'shotgun');
     player.addChild(player.weaponSprite);
+}
+
+function loadSound(key) {
+    sounds[key] = game.add.audio(key);
+    sounds[key].allowMultiple = true;
+    return sounds[key];
 }
