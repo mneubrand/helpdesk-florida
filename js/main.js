@@ -116,6 +116,7 @@ function create() {
 
     cursors = game.input.keyboard.createCursorKeys();
     game.input.mouse.capture = true;
+    game.input.keyboard.addKeyCapture(Phaser.Keyboard.SPACEBAR);
 }
 
 function update() {
@@ -140,7 +141,6 @@ function update() {
 
     for (var i = 0; i < enemies.length; i++) {
         var enemy = enemies[i];
-        enemy.body.setZeroVelocity();
         updateCharacterFrame(enemy, (enemy.body.angle + 360) % 360);
 
         // check line of sight
