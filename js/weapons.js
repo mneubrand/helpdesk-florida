@@ -95,7 +95,7 @@ var WEAPONS = {
             if (sprite === player) {
                 for (var i = 0; i < enemies.length; i++) {
                     var enemy = enemies[0];
-                    var boundsA = player.getBounds().inflate(1, 1);
+                    var boundsA = player.getBounds().inflate(2, 2);
                     var boundsB = enemy.getBounds();
 
                     if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
@@ -113,7 +113,7 @@ var WEAPONS = {
                 if (game.math.distance(sprite.x, sprite.y, player.x, player.y) > 6) {
                     return;
                 } else {
-                    var boundsA = player.getBounds().inflate(1, 1);
+                    var boundsA = player.getBounds().inflate(2, 2);
                     var boundsB = sprite.getBounds();
 
                     if (Phaser.Rectangle.intersects(boundsA, boundsB)) {

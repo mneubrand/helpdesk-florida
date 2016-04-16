@@ -2,7 +2,7 @@ var player, cursor;
 var enemies;
 var layers;
 var stripes;
-var currentLevel = 0;
+var currentLevel = 1;
 
 var ammo;
 var pickup;

@@ -36,7 +36,7 @@ function mouseDown(e) {
     if (e.button == 0) {
         game.input.activePointer.leftButton.timeDown = game.time.time;
         game.input.activePointer.leftButton.isDown = true;
-    } else if (e.button == 2) {
+    } else if (e.button == 2 && game.input.mouse.locked) {
         for (var i = 0; i < pickups.length; i++) {
             var boundsA = player.getBounds();
             var boundsB = pickups[i].getBounds();
@@ -49,6 +49,10 @@ function mouseDown(e) {
                 return;
             }
         }
+
+        // Drop weapon
+        spawnPickup(player);
+        changeWeapon(player, 'fist', 0);
     }
 }
 
@@ -86,7 +90,7 @@ function updateInput() {
         player.body.moveRight(MOVE_SPEED);
     }
 
-    if (game.input.activePointer.leftButton.isDown) {
+    if (game.input.mouse.locked && game.input.activePointer.leftButton.isDown) {
         var targetX = cursor.cameraOffset.x + game.camera.x;
         var targetY = cursor.cameraOffset.y + game.camera.y;
         player.weapon.fire(player, targetX, targetY, game.input.activePointer.leftButton.timeDown);

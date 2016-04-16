@@ -11,7 +11,7 @@ var STRIPE_SPEED = 50;
 var ENEMY_REACTION = 280;
 var ENEMY_MOVE_SPEED = 28;
 var ENEMY_WALK_SPEED = 15;
-var ENEMY_SIGHT_ANGLE = 70;
+var ENEMY_SIGHT_ANGLE = 90;
 
 // Globals
 var game = new Phaser.Game(64, 64, Phaser.CANVAS, 'phaser', {
@@ -91,8 +91,6 @@ function create() {
     loadSound('splat');
     loadSound('assault_rifle');
     loadSound('swing');
-
-    game.sound.mute = true;
 
     var pixelCanvas = document.getElementById('pixel');
     pixelcontext = pixelCanvas.getContext('2d');

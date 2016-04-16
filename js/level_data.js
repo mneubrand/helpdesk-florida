@@ -101,6 +101,11 @@ var LEVELS = [
             }
         ]
     },
+
+
+
+
+
     {
         w: 140,
         h: 140,
@@ -169,17 +174,131 @@ var LEVELS = [
                 x: 88,
                 y: 75,
                 angle: 0,
-                weapon: 'assault_rifle'
+                weapon: 'shotgun'
             },
             {
-                x: 50,
-                y: 28,
+                x: 47,
+                y: 42,
                 angle: 90,
                 weapon: 'fist',
                 waypoints: [
-                    [50, 28],
-                    [70, 28]
+                    [47, 42],
+                    [75, 42]
                 ]
+            },
+            {
+                x: 61,
+                y: 63,
+                angle: 315,
+                weapon: 'assault_rifle'
+            },
+            {
+                x: 77,
+                y: 60,
+                angle: 270,
+                weapon: 'shotgun'
+            },
+            {
+                x: 25,
+                y: 28,
+                angle: 90,
+                weapon: 'shotgun',
+                waypoints: [
+                    [27, 32],
+                    [27, 48],
+                ]
+            },
+            {
+                x: 32,
+                y: 75,
+                angle: 0,
+                weapon: 'assault_rifle'
+            }
+        ],
+        stuff: [
+            {
+                x: 70,
+                y: 26,
+                angle: 0,
+                type: 'sofa'
+            },
+            {
+                x: 55,
+                y: 26,
+                angle: 0,
+                type: 'sofa'
+            },
+            {
+                x: 32,
+                y: 26,
+                angle: 0,
+                type: 'sofa'
+            },
+            {
+                x: 55,
+                y: 36,
+                angle: 0,
+                type: 'table'
+            },
+            {
+                x: 73,
+                y: 50,
+                angle: 180,
+                type: 'dresser'
+            },
+            {
+                x: 63,
+                y: 50,
+                angle: 180,
+                type: 'nightstand'
+            },
+            {
+                x: 51,
+                y: 79,
+                angle: 180,
+                type: 'double_bed'
+            },
+            {
+                x: 57,
+                y: 82,
+                angle: 180,
+                type: 'nightstand'
+            },
+            {
+                x: 75,
+                y: 82,
+                angle: 180,
+                type: 'dresser'
+            },
+            {
+                x: 68,
+                y: 82,
+                angle: 180,
+                type: 'dresser'
+            },
+            {
+                x: 78,
+                y: 62,
+                angle: 90,
+                type: 'sink'
+            },
+            {
+                x: 39,
+                y: 49,
+                angle: 180,
+                type: 'nightstand'
+            },
+            {
+                x: 27,
+                y: 66,
+                angle: 0,
+                type: 'table'
+            },
+            {
+                x: 31,
+                y: 66,
+                angle: 0,
+                type: 'table'
             }
         ]
     }
