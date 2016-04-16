@@ -8,7 +8,7 @@ var WALK_ANIMATION_SPEED = 500;
 var DOOR_WIDTH = 8;
 var STRIPE_SPEED = 50;
 
-var ENEMY_REACTION = 330;
+var ENEMY_REACTION = 280;
 var ENEMY_MOVE_SPEED = 28;
 var ENEMY_WALK_SPEED = 15;
 var ENEMY_SIGHT_ANGLE = 70;
@@ -61,6 +61,15 @@ function preload() {
     game.load.image('text_clear', 'assets/sprites/text_clear.png');
     game.load.image('text_over', 'assets/sprites/text_over.png');
     game.load.image('stripes', 'assets/sprites/stripes.png');
+
+    game.load.image('sofa', 'assets/sprites/sofa.png');
+    game.load.image('bath_tub', 'assets/sprites/bath_tub.png');
+    game.load.image('single_bed', 'assets/sprites/single_bed.png');
+    game.load.image('double_bed', 'assets/sprites/double_bed.png');
+    game.load.image('dresser', 'assets/sprites/dresser.png');
+    game.load.image('nightstand', 'assets/sprites/nightstand.png');
+    game.load.image('table', 'assets/sprites/table.png');
+    game.load.image('sink', 'assets/sprites/sink.png');
 
     game.load.audio('bg-loop', 'assets/sounds/bg-loop.wav');
     game.load.audio('shotgun', 'assets/sounds/shotgun.wav');
@@ -149,7 +158,15 @@ function update() {
                 enemy.firstSeen = game.time.now;
             } else if (enemy.firstSeen > 0 && game.time.now - enemy.firstSeen > ENEMY_REACTION) {
                 enemy.body.angle = sightAngle;
-                enemy.weapon.fire(enemy, player.x, player.y);
+
+                if (game.math.distance(player.x, player.y, enemy.x, enemy.y) < 3) {
+                    player.dead = true;
+                    player.visible = false;
+                    kill(player, 'player_dead');
+                    enemy.weapon.fire(enemy, player.x, player.y);
+                } else {
+                    enemy.weapon.fire(enemy, player.x, player.y);
+                }
 
                 if (game.math.distance(enemy.targetX, enemy.targetY, enemy.x, enemy.y) > 2) {
                     var angle = Math.atan2(enemy.targetY - enemy.y, enemy.targetX - enemy.x);
@@ -173,7 +190,7 @@ function update() {
                 }
             } else if (enemy.data.waypoints) {
                 var current = enemy.data.waypoints[enemy.currentWaypoint];
-                if (game.math.distance(current[0], current[1], enemy.x, enemy.y) < 1) {
+                if (game.math.distance(current[0], current[1], enemy.x, enemy.y) < 0.5) {
                     enemy.currentWaypoint = (enemy.currentWaypoint + 1) % enemy.data.waypoints.length;
                     current = enemy.data.waypoints[enemy.currentWaypoint];
                 }
@@ -189,7 +206,7 @@ function update() {
     var pickupFound = getActivePickup();
 
 
-    if(pickupFound) {
+    if (pickupFound) {
         pickup.loadTexture(pickupFound.weapon + '_pickup');
         pickup.visible = true;
     } else {
@@ -295,7 +312,7 @@ function updateCharacterFrame(sprite, rotation) {
 
 function getActivePickup() {
     for (var i = 0; i < pickups.length; i++) {
-        if(!pickups[i].exists) {
+        if (!pickups[i].exists) {
             continue;
         }
 

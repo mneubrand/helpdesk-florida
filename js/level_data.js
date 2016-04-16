@@ -40,10 +40,64 @@ var LEVELS = [
         ],
         enemies: [
             {
-                x: 50,
-                y: 60,
-                angle: 0,
+                x: 46,
+                y: 68,
+                angle: 90,
                 weapon: 'assault_rifle'
+            },
+            {
+                x: 57,
+                y: 41,
+                angle: 180,
+                weapon: 'fist',
+                waypoints: [
+                    [57, 41],
+                    [57, 52]
+                ]
+            },
+            {
+                x: 75,
+                y: 48,
+                angle: 270,
+                weapon: 'shotgun'
+            },
+        ],
+        stuff: [
+            {
+                x: 59,
+                y: 62,
+                angle: 0,
+                type: 'sofa'
+            },
+            {
+                x: 59,
+                y: 69,
+                angle: 0,
+                type: 'table'
+            },
+            {
+                x: 69,
+                y: 62,
+                angle: 0,
+                type: 'nightstand'
+            },
+            {
+                x: 47,
+                y: 43,
+                angle: 0,
+                type: 'single_bed'
+            },
+            {
+                x: 52,
+                y: 42,
+                angle: 0,
+                type: 'nightstand'
+            },
+            {
+                x: 72,
+                y: 42,
+                angle: 0,
+                type: 'bath_tub'
             }
         ]
     },

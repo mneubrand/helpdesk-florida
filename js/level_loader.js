@@ -7,7 +7,7 @@ var currentLevel = 0;
 var ammo;
 var pickup;
 
-var staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup;
+var staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup, stuffCollisionGroup;
 var sightBlockingBodies;
 var pickups;
 
@@ -24,6 +24,7 @@ function loadLevel(index) {
     staticCollisionGroup = game.physics.p2.createCollisionGroup();
     bulletCollisionGroup = game.physics.p2.createCollisionGroup();
     dynamicCollisionGroup = game.physics.p2.createCollisionGroup();
+    stuffCollisionGroup = game.physics.p2.createCollisionGroup();
 
     // Stripes
     stripes = game.add.tileSprite(0, 0, 64, 64, 'stripes');
@@ -52,12 +53,19 @@ function loadLevel(index) {
     cursor.visible = false;
     cursor.fixedToCamera = true;
 
+    for (var i = 0; i < level.stuff.length; i++) {
+        var stuff = level.stuff[i];
+        createStuff(stuff.x, stuff.y, stuff.type, stuff.angle);
+    }
+
     // Physics
     game.physics.p2.enable(player);
     player.body.fixedRotation = true;
     player.body.collideWorldBounds = true;
     setDynamicCollisionGroup(player.body);
     player.body.debug = PHYSICS_DEBUG;
+
+    changeWeapon(player, 'fist');
 
     player.body.onBeginContact.add(function (body, bodyB, shapeA, shapeB, equation) {
         if (!body) {
@@ -76,8 +84,6 @@ function loadLevel(index) {
             }
         }
     }, this);
-
-    changeWeapon(player, 'fist');
 
     enemies = [];
     for (var i = 0; i < level.enemies.length; i++) {
@@ -244,7 +250,42 @@ function createDoor(x, y, direction) {
     });
     sim.world.addConstraint(revolute);
 
+
+    door.body.onBeginContact.add(function (body, bodyB, shapeA, shapeB, equation) {
+        if (!body) {
+            return;
+        }
+
+        if (body._collisionGroup == 'dynamic') {
+            var hit = body.sprite;
+            if (hit.key === 'enemy') {
+                for (var i = 0; i < enemies.length; i++) {
+                    var enemy = enemies[i];
+                    if (hit === enemy) {
+                        kill(enemy, 'enemy_dead');
+
+                        // Remove enemy
+                        enemies.splice(i, 1);
+                        enemy.destroy();
+                        return;
+                    }
+                }
+            }
+        }
+    });
+
     sightBlockingBodies.push(door.body);
+}
+
+function createStuff(x, y, type, angle) {
+    var stuff = game.add.sprite(x, y, type);
+    layers[1].add(stuff);
+
+    game.physics.p2.enable(stuff);
+    stuff.body.static = true;
+    stuff.body.angle = angle;
+    stuff.body.debug = PHYSICS_DEBUG;
+    setStuffCollisionGroup(stuff.body);
 }
 
 function changeWeapon(sprite, name, ammo) {
@@ -269,11 +310,17 @@ function changeWeapon(sprite, name, ammo) {
 function setStaticCollisionGroup(body) {
     body.setCollisionGroup(staticCollisionGroup);
     body._collisionGroup = 'static';
-    body.collides([staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup]);
+    body.collides([staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup, stuffCollisionGroup]);
 }
 
 function setDynamicCollisionGroup(body) {
     body.setCollisionGroup(dynamicCollisionGroup);
     body._collisionGroup = 'dynamic';
-    body.collides([staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup]);
+    body.collides([staticCollisionGroup, dynamicCollisionGroup, bulletCollisionGroup, stuffCollisionGroup]);
+}
+
+function setStuffCollisionGroup(body) {
+    body.setCollisionGroup(stuffCollisionGroup);
+    body._collisionGroup = 'stuff';
+    body.collides([staticCollisionGroup, dynamicCollisionGroup]);
 }

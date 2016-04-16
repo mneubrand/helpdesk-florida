@@ -33,10 +33,10 @@ function mouseMove(e) {
 }
 
 function mouseDown(e) {
-    if(e.button == 0) {
+    if (e.button == 0) {
         game.input.activePointer.leftButton.timeDown = game.time.time;
         game.input.activePointer.leftButton.isDown = true;
-    } else if(e.button == 2) {
+    } else if (e.button == 2) {
         for (var i = 0; i < pickups.length; i++) {
             var boundsA = player.getBounds();
             var boundsB = pickups[i].getBounds();
@@ -44,8 +44,8 @@ function mouseDown(e) {
             if (Phaser.Rectangle.intersects(boundsA, boundsB)) {
                 spawnPickup(player);
                 changeWeapon(player, pickups[i].weapon, pickups[i].ammo);
-                pickups.splice(i, 1);
                 pickups[i].destroy();
+                pickups.splice(i, 1);
                 return;
             }
         }
@@ -53,13 +53,13 @@ function mouseDown(e) {
 }
 
 function mouseUp(e) {
-    if(e.button == 0) {
+    if (e.button == 0) {
         game.input.activePointer.leftButton.isDown = false;
     }
 }
 
 function updateInput() {
-    if(player) {
+    if (player) {
         player.body.setZeroVelocity();
     }
 
