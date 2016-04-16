@@ -60,7 +60,7 @@ var LEVELS = [
                 y: 48,
                 angle: 270,
                 weapon: 'shotgun'
-            },
+            }
         ],
         stuff: [
             {
@@ -205,7 +205,7 @@ var LEVELS = [
                 weapon: 'shotgun',
                 waypoints: [
                     [27, 32],
-                    [27, 48],
+                    [27, 48]
                 ]
             },
             {
@@ -299,6 +299,225 @@ var LEVELS = [
                 y: 66,
                 angle: 0,
                 type: 'table'
+            }
+        ]
+    },
+
+
+
+
+
+    {
+        w: 160,
+        h: 160,
+        playerX: 70,
+        playerY: 126,
+        rooms: [
+            {
+                x: 20,
+                y: 20,
+                w: 100,
+                h: 100,
+                doors: [null, null, {offset: 46, door: true}],
+                floor: 'floor_c'
+            },
+            {
+                x: 20,
+                y: 20,
+                w: 42,
+                h: 42,
+                doors: [null, {offset: 17, door: true}, {offset: 17, door: true}],
+                floor: 'floor_a'
+            },
+            {
+                x: 20,
+                y: 78,
+                w: 42,
+                h: 42,
+                doors: [{offset: 17, door: true}, {offset: 17, door: true}],
+                floor: 'floor_d'
+            },
+            {
+                x: 78,
+                y: 78,
+                w: 42,
+                h: 42,
+                doors: [{offset: 17, door: true}, null, null, {offset: 17, door: true}],
+                floor: 'floor_e'
+            },
+            {
+                x: 78,
+                y: 20,
+                w: 42,
+                h: 42,
+                doors: [null, null, {offset: 17, door: true}, {offset: 17, door: true}],
+                floor: 'floor_b'
+            }
+        ],
+        enemies: [
+            {
+                x: 70,
+                y: 80,
+                angle: 0,
+                weapon: 'shotgun',
+                waypoints: [
+                    [70, 80],
+                    [70, 115]
+                ]
+            },
+            {
+                x: 110,
+                y: 70,
+                angle: 270,
+                weapon: 'assault_rifle'
+            },
+            {
+                x: 30,
+                y: 70,
+                angle: 90,
+                weapon: 'fist'
+            },
+            {
+                x: 28,
+                y: 95,
+                angle: 90,
+                weapon: 'shotgun',
+                waypoints: [
+                    [28, 98],
+                    [52, 98]
+                ]
+            },
+            {
+                x: 85,
+                y: 85,
+                angle: 90,
+                weapon: 'assault_rifle',
+                waypoints: [
+                    [85, 85],
+                    [85, 112],
+                    [112, 112],
+                    [112, 85]
+                ]
+            },
+            {
+                x: 98,
+                y: 98,
+                angle: 270,
+                weapon: 'assault_rifle'
+            },
+            {
+                x: 29,
+                y: 32,
+                angle: 90,
+                weapon: 'shotgun',
+                waypoints: [
+                    [29, 32],
+                    [52, 32],
+                    [52, 52],
+                    [29, 52]
+                ]
+            },
+            {
+                x: 86,
+                y: 41,
+                angle: 90,
+                weapon: 'assault_rifle',
+                waypoints: [
+                    [86, 41],
+                    [114, 41]
+                ]
+            }
+        ],
+        stuff: [
+            {
+                x: 31,
+                y: 84,
+                angle: 0,
+                type: 'sofa'
+            },
+            {
+                x: 31,
+                y: 90,
+                angle: 0,
+                type: 'table'
+            },
+            {
+                x: 52,
+                y: 114,
+                angle: 180,
+                type: 'double_bed'
+            },
+            {
+                x: 31,
+                y: 114,
+                angle: 180,
+                type: 'double_bed'
+            },
+            {
+                x: 31,
+                y: 26,
+                angle: 0,
+                type: 'dresser'
+            },
+            {
+                x: 31,
+                y: 26,
+                angle: 0,
+                type: 'dresser'
+            },
+            {
+                x: 41,
+                y: 26,
+                angle: 0,
+                type: 'dresser'
+            },
+            {
+                x: 51,
+                y: 26,
+                angle: 0,
+                type: 'dresser'
+            },
+            {
+                x: 41,
+                y: 39,
+                angle: 0,
+                type: 'sofa'
+            },
+            {
+                x: 41,
+                y: 45,
+                angle: 0,
+                type: 'table'
+            },
+            {
+                x: 88,
+                y: 28,
+                angle: 0,
+                type: 'double_bed'
+            },
+            {
+                x: 100,
+                y: 28,
+                angle: 0,
+                type: 'double_bed'
+            },
+            {
+                x: 112,
+                y: 28,
+                angle: 0,
+                type: 'double_bed'
+            },
+            {
+                x: 88,
+                y: 55,
+                angle: 180,
+                type: 'double_bed'
+            },
+            {
+                x: 112,
+                y: 55,
+                angle: 180,
+                type: 'double_bed'
             }
         ]
     }

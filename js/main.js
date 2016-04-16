@@ -144,10 +144,13 @@ function update() {
         updateCharacterFrame(enemy, (enemy.body.angle + 360) % 360);
 
         // check line of sight
-        var sightAngle = (game.math.radToDeg(Math.atan2(player.y - enemy.y, player.x - enemy.x) + game.math.degToRad(90)) + 360) % 360;
-        var angleDiff = Math.abs(sightAngle - ((enemy.body.angle + 360) % 360));
+        var sightAngle = game.math.wrapAngle(game.math.radToDeg(Math.atan2(player.y - enemy.y, player.x - enemy.x)) + 90);
+        var angleDiff = sightAngle - game.math.wrapAngle(enemy.body.angle);
+        angleDiff += angleDiff > 180 ? -360 : 0;
+        angleDiff += angleDiff < -180 ? 360 : 0;
+        angleDiff = Math.abs(angleDiff);
 
-        if (angleDiff < ENEMY_SIGHT_ANGLE && game.math.distance(player.x, player.y, enemy.x, enemy.y) < 60 && !getWallIntersection(enemy, player)) {
+        if (angleDiff < ENEMY_SIGHT_ANGLE && game.math.distance(player.x, player.y, enemy.x, enemy.y) < 80 && !getWallIntersection(enemy, player)) {
             if (SIGHT_DEBUG) {
                 game.debug.geom(new Phaser.Line(player.x, player.y, enemy.x, enemy.y), 'rgba(255,0,0,1)');
             }

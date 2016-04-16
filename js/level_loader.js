@@ -76,7 +76,7 @@ function loadLevel(index) {
             var hit = body.sprite;
             if (hit.key === 'enemy') {
                 window.setTimeout(function () {
-                    if(hit.exists) {
+                    if (hit.exists) {
                         var angle = Math.atan2(player.y - hit.y, player.x - hit.x);
                         hit.body.rotation = angle + game.math.degToRad(90);
                     }
